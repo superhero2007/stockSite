@@ -1,0 +1,359 @@
+{% load staticfiles%}A
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Semanteon</title>
+
+    <link href="{% static 'site_app/css/bootstrap.min.css'%}" rel="stylesheet">
+    <link href="{% static 'site_app/font-awesome/css/font-awesome.css'%}" rel="stylesheet">
+    <link href="{% static 'site_app/css/animate.css'%}" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'site_app/bootstrap-table/src/bootstrap-table.css'%}">
+    <link rel="stylesheet" href="{% static '//rawgit.com/vitalets/x-editable/master/dist/bootstrap3-editable/css/bootstrap-editable.css'%}">
+    <link href="{% static 'site_app/css/style.css'%}" rel="stylesheet">
+
+    <meta charset="utf-8">
+
+    <script src="{% static 'site_app/js/jquery-2.1.1.js' %}"></script>;
+    <script src="{% static 'site_app/js/bootstrap.min.js'%}"></script>
+    <script src="{% static 'site_app/bootstrap-table/src/bootstrap-table.js'%}"></script>
+  
+    <script src="{% static 'site_app/bootstrap-table/src/extensions/export/bootstrap-table-export.js'%}"></script>
+    <script src="{% static '//rawgit.com/kayalshri/tableExport.jquery.plugin/master/tableExport.js'%}"></script>
+    <script src="{% static '//rawgit.com/kayalshri/tableExport.jquery.plugin/master/jquery.base64.js'%}"></script>
+    <script src="{% static 'site_app/bootstrap-table/src/extensions/editable/bootstrap-table-editable.js' %}"></script>
+    <script src="{% static '//rawgit.com/vitalets/x-editable/master/dist/bootstrap3-editable/js/bootstrap-editable.js'%}"></script>
+    <script src="{% static 'site_app/bootstrap-table/dist/extensions/filter/bootstrap-table-filter.js'%}"></script>
+
+</head>
+
+<body class="top-navigation">
+
+  <div id="wrapper">
+    <div id="page-wrapper" class="gray-bg">
+      <div class="row border-bottom white-bg">
+        <nav class="navbar navbar-static-top" role="navigation">
+          <div class="navbar-header">
+            <button aria-controls="navbar" aria-expanded="false" data-target="#navbar" data-toggle="collapse" class="navbar-toggle collapsed" type="button">
+              <i class="fa fa-reorder"></i>
+            </button>
+            <a href="#" class="navbar-brand">Semanteon</a>
+          </div>
+          <div class="navbar-collapse collapse" id="navbar">
+            <ul class="nav navbar-nav">
+              <li class="inactive">
+                <a aria-expanded="false" role="button" href="### link to main strategies dashboard"> Latest Signals Dashboard</a>
+              </li>
+
+              <li class="dropdown">
+                <a aria-expanded="false" role="button" href="#" class="dropdown-toggle" data-toggle="dropdown"> Strategies <span class="caret"></span></a>
+                <ul role="menu" class="dropdown-menu">
+                  <li><a href="####Link to strategy 1 main page###">Strategy1</a></li>
+                  <li><a href="####Link to strategy 2 main page###">Strategy2</a></li>
+                  <li><a href="">Other Strategies</a></li>
+                </ul>
+              </li>
+
+	      <form role="search" class="navbar-form-custom" action="search_results.html">
+                <div class="form-group">
+		  <input type="text" placeholder="Search for a ticker..." class="form-control" name="top-search" id="top-search">
+                </div>
+	      </form>
+
+            </ul>
+            <ul class="nav navbar-top-links navbar-right">
+              <li>
+                <a href="login.html">
+                  <i class="fa fa-sign-out"></i> Log out
+                </a>
+              </li>
+            </ul>
+          </div>
+        </nav>
+      </div>
+
+      <div class="wrapper wrapper-content">
+        <div class="container">
+          <div class="row">
+            <div class="col-lg-4">
+              <div class="ibox float-e-margins">
+                <div class="ibox-title">
+                  <h2>{{ticker}}</h2>
+		  <small>{{company_name}}<br>
+		    {{zacks_sector}} - {{zacks_industry}}</small>
+                </div>
+                <div class="ibox-content">
+		  <div class="row">
+		    <h4 class="no-margins">Latest Close: {{latest_bar.close}}</h4>
+		    <h4 class="no-margins">Market Cap: {{latest_bar.market_cap}}</h4>
+		    <h4 class="no-margins">Avg. Daily trading vol(30-day): {{avg_trading_vol}}</h4>
+		  </div>
+		  <div class="row">
+		    <div class="m-t-md">
+                      <small class="pull-right">
+			<i class="fa fa-clock-o"> </i>
+			Update on {{price_db_latest_date}}
+                      </small>
+                    </div>
+		  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-lg-8">
+              <div class="ibox float-e-margins">
+	    	<div class="ibox-content">
+                  <div>
+                    <h3 class="font-bold no-margins">Stock Price History And Signals</h3>
+                  </div>
+
+                  <div class="m-t-sm">
+                    <div class="row">
+	    	      <div style="width:100px;height:114px">
+                        <canvas id="lineChart2" height="114"></canvas>
+                      </div>
+                    </div>
+                  </div>
+	    	</div>
+              </div>
+            </div>
+	  </div>
+              
+          <div class="row">
+            <div class="col-lg-12">
+              <div class="ibox float-e-margins">
+                <div class="ibox-title">
+                  <h5>Strategy 1</h5>
+                  <div class="ibox-tools">
+                    <a class="collapse-link">
+                      <i class="fa fa-chevron-up"></i>
+                    </a>
+                    <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                      <i class="fa fa-wrench"></i>
+                    </a>
+                    <ul class="dropdown-menu dropdown-user">
+                      <li><a href="#">Config option 1</a>
+                      </li>
+                      <li><a href="#">Config option 2</a>
+                      </li>
+                    </ul>
+                    <a class="close-link">
+                      <i class="fa fa-times"></i>
+                    </a>
+                  </div>
+                </div>
+                <div class="ibox-content">
+		  <table id="table"
+			 class = "table table-condensed"
+			 data-toggle = "table"
+			 data-toolbar="#toolbar"
+			 data-toolbar="#filter-bar"
+			 data-search="true"
+			 data-search-align = "left"
+			 data-show-filter= "true"
+			 data-select-item-name="toolbar1"
+			 data-show-refresh="true"
+			 data-show-toggle="true"
+			 data-show-columns="true"
+			 data-show-export="true"
+			 data-show-pagination-switch="true"
+			 data-striped = "true"
+			 data-pagination="true"
+			 data-page-list="[10, 25, 50, 100, ALL]">
+                    <thead>
+                      <tr>
+			<th class = "col-sm-1" data-field = "Date1"><small>Date 1</small></th>
+			<th data-field = "Text1" ><small>Text 1</small></th>
+			<th data-field = "Text2" ><small>Text 2</small></th>
+			<th data-field = "Boolean1" data-formatter="checkmarkFormatter"><small>Boolean 1</small></th>
+			<th data-field = "Boolean2" data-formatter="checkmarkFormatter"><small>Boolean 2</small></th>
+
+			<th data-field = "Text3" ><small>Text 3</small></th>
+			<th data-field = "Dollars1" ><small>Dollars1</small></th>				    
+			<th data-field = "Text4" ><small>Text4</small></th>
+			<th data-field = "Percent1"  ><small>Percent 1</small></th>
+			<th data-field = "Date2" ><small>Date2</small></th>
+			<th data-field = "Percent2" ><small>Percent 2</small></th>
+			<th data-field = "Percent3" ><small>Percent 3</small></th>
+                      </tr>
+                    </thead>
+                    <tbody>
+		      {% for entry in it_data %} 
+                      <tr>
+                        <td><small>{{entry.Date1}}</small></td>
+                        <td><small>{{entry.Text1}}</small></td>
+                        <td><small>{{entry.Text2}}</small></td>
+                        <td><small>{{entry.Boolean1}}</small></td>
+                        <td><small>{{entry.Boolean2}}</small></td>
+                        <td><small>{{entry.Text3}}</small></td>
+                        <td><small>{{entry.Dollars1}}</small></td>
+                        <td><small>{{entry.Text4}}</small></td>
+                        <td><small>{{entry.Percent1}}</small></td>
+                        <td><small>{{entry.Date2}}</small></td>
+                        <td><small>{{entry.Percent2}}</small></td>
+                        <td><small>{{entry.Percent3}}</small></td>
+                      </tr>
+		      {% endfor %}
+
+                    </tbody>
+		  </table>
+		</div>			   
+	      </div>
+            </div>
+          </div>
+        </div>
+	
+      </div>
+      
+    </div>
+  </div>
+
+</div>
+</div>
+
+<script>
+
+
+  function nameFormatter(value, row) {
+  var icon = row.id % 2 === 0 ? 'glyphicon-star' : 'glyphicon-star-empty'
+
+  return '<i class="glyphicon ' + icon + '"></i> ' + value;
+  }
+
+
+  function checkmarkFormatter(value) {
+  if (value ==1) { 
+  return '<i class="fa fa-check text-navy">';
+    } else {return parseInt(value,10); }
+  }
+
+  function dollarvalueFormatter(value) {
+  // 16777215 == ffffff in decimal
+  var color = '#'+Math.floor(Math.random() * 6777215).toString(16);
+  return '<div  style="color: ' + color + '">' +
+    '<i class="glyphicon glyphicon-usd"></i>' +
+    value.substring(1) +
+    '</div>';
+  }
+</script>
+
+
+    <!-- Mainly scripts -->
+    <script src="{% static 'site_app/js/plugins/metisMenu/jquery.metisMenu.js' %}"></script>
+    <script src="{% static 'site_app/js/plugins/slimscroll/jquery.slimscroll.min.js' %}"></script>
+
+    <!-- Custom and plugin javascript -->
+    <!-- <script src="{% static 'site_app/js/inspinia.js' %}"></script> -->
+    <script src="{% static 'site_app/js/plugins/pace/pace.min.js' %}"></script>
+
+    <!-- Flot -->
+    <script src="{% static 'site_app/js/plugins/flot/jquery.flot.js' %}"></script>
+    <script src="{% static 'site_app/js/plugins/flot/jquery.flot.tooltip.min.js' %}"></script>
+    <script src="{% static 'site_app/js/plugins/flot/jquery.flot.resize.js' %}"></script>
+
+    <!-- ChartJS-->
+    <script src="{% static 'site_app/js/plugins/chartJs/Chart.min.js' %}"></script>
+
+    <!-- Peity -->
+    <script src="{% static 'site_app/js/plugins/peity/jquery.peity.min.js' %}"></script>
+    <!-- Peity demo -->
+    <script src="{% static 'site_app/js/demo/peity-demo.js' %}"></script>
+
+
+    <script>
+        $(document).ready(function() {
+
+
+            var d1 = [[1262304000000, 6], [1264982400000, 3057], [1267401600000, 20434], [1270080000000, 31982], [1272672000000, 26602], [1275350400000, 27826], [1277942400000, 24302], [1280620800000, 24237], [1283299200000, 21004], [1285891200000, 12144], [1288569600000, 10577], [1291161600000, 10295]];
+            var d2 = [[1262304000000, 5], [1264982400000, 200], [1267401600000, 1605], [1270080000000, 6129], [1272672000000, 11643], [1275350400000, 19055], [1277942400000, 30062], [1280620800000, 39197], [1283299200000, 37000], [1285891200000, 27000], [1288569600000, 21000], [1291161600000, 17000]];
+
+            var data1 = [
+                { label: "Data 1", data: d1, color: '#17a084'},
+                { label: "Data 2", data: d2, color: '#127e68' }
+            ];
+            $.plot($("#flot-chart1"), data1, {
+                xaxis: {
+                    tickDecimals: 0
+                },
+                series: {
+                    lines: {
+                        show: true,
+                        fill: true,
+                        fillColor: {
+                            colors: [{
+                                opacity: 1
+                            }, {
+                                opacity: 1
+                            }]
+                        },
+                    },
+                    points: {
+                        width: 0.1,
+                        show: false
+                    },
+                },
+                grid: {
+                    show: false,
+                    borderWidth: 0
+                },
+                legend: {
+                    show: false,
+                }
+            });
+
+            var lineData = {
+                labels: ["January", "February", "March", "April", "May", "June", "July"],
+                datasets: [
+                    {
+                        label: "Example dataset",
+                        fillColor: "rgba(220,220,220,0.5)",
+                        strokeColor: "rgba(220,220,220,1)",
+                        pointColor: "rgba(220,220,220,1)",
+                        pointStrokeColor: "#fff",
+                        pointHighlightFill: "#fff",
+                        pointHighlightStroke: "rgba(220,220,220,1)",
+                        data: [65, 59, 40, 51, 36, 25, 40]
+                    },
+                    {
+                        label: "Example dataset",
+                        fillColor: "rgba(26,179,148,0.5)",
+                        strokeColor: "rgba(26,179,148,0.7)",
+                        pointColor: "rgba(26,179,148,1)",
+                        pointStrokeColor: "#fff",
+                        pointHighlightFill: "#fff",
+                        pointHighlightStroke: "rgba(26,179,148,1)",
+                        data: [48, 48, 60, 39, 56, 37, 30]
+                    }
+                ]
+            };
+
+            var lineOptions = {
+                scaleShowGridLines: true,
+                scaleGridLineColor: "rgba(0,0,0,.05)",
+                scaleGridLineWidth: 1,
+                bezierCurve: true,
+                bezierCurveTension: 0.4,
+                pointDot: true,
+                pointDotRadius: 4,
+                pointDotStrokeWidth: 1,
+                pointHitDetectionRadius: 20,
+                datasetStroke: true,
+                datasetStrokeWidth: 2,
+                datasetFill: true,
+                responsive: true,
+            };
+
+
+            var ctx = document.getElementById("lineChart2").getContext("2d");
+            var myNewChart = new Chart(ctx).Line(lineData, lineOptions);
+
+        });
+    </script>
+
+</body>
+
+</html>

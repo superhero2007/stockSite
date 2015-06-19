@@ -1,0 +1,56 @@
+{% load staticfiles %}
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Semanteon | Login</title>
+
+    <link href="{% static 'authentication/css/bootstrap.min.css'%}" rel="stylesheet">
+    <link href="{% static 'authentication/font-awesome/css/font-awesome.css'%}" rel="stylesheet">
+
+    <link href="{% static 'authentication/css/animate.css'%}" rel="stylesheet">
+    <link href="{% static 'authentication/css/style.css'%}" rel="stylesheet">
+    
+    <link href="{% static 'authentication/css/custom_overrides.css'%}" rel="stylesheet">
+</head>
+
+<body class="gray-bg">
+
+    <div id="logo-container">
+        <img id="logo-image" src="{% static 'authentication/images/Semanteon_logo.png'%}" />
+    </div>
+    <div class="middle-box text-center loginscreen animated fadeInDown">
+        <div>
+            <h3>Welcome to Semanteon</h3>
+            <p>Please log in.</p>
+            {% if login_error %}
+                <div class="alert-danger">
+                    <strong>Error-</strong> {{ login_error }}
+                </div>
+            {% endif %}
+            <form class="m-t" role="form" action="/login/" method="post">
+                {% csrf_token %}
+                <input type="hidden" name="next" value="{{ next }}" />
+                <div class="form-group">
+                    <input type="text" class="form-control" name="username" placeholder="Username" required="">
+                </div>
+                <div class="form-group">
+                    <input type="password" class="form-control" name="password" placeholder="Password" required="">
+                </div>
+                <button type="submit" class="btn btn-primary block full-width m-b">Login</button>
+
+            </form>
+        </div>
+    </div>
+
+    <!-- Mainly scripts -->
+    <script src="{% static 'authentication/js/jquery-2.1.1.js'%}"></script>
+    <script src="{% static 'authentication/js/bootstrap.min.js'%}"></script>
+
+</body>
+
+</html>
