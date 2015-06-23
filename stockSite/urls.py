@@ -22,6 +22,7 @@ urlpatterns = [
     url(r'^Semanteon/accounts/', include('django.contrib.auth.urls')),
     url(r'^Semanteon/', include('site_app.urls')),
     url(r'^', include('authentication.urls')),
+    url(r'session_security/', include('session_security.urls')),
 ]
 
 # urlpatterns += [
