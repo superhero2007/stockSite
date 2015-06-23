@@ -91,17 +91,21 @@
                 <div class="ibox-title">
                   <h2>{{ticker}}</h2>
                   <h4>{{CompanyName}}<br>
-                      {{zacks_sector}} - {{zacks_ind}}</h4>
+                      <small>{{zacks_sector}} - {{zacks_ind}}</small></h4>
                   </div>
                   <div class="ibox-content">
                     <div class="row">
 		      <div class = "col-sm-6">
 			<h4>Latest Close</h4>
+			<h4>52-wk high</h4>
+			<h4>52-wk low</h4>
 			<h4>Market Cap</h4>
 			<h4>Avg. Daily trading vol(30-day)</h4>
 		      </div>
 		      <div class = "col-sm-6">
 			<h4>${{latest_bar.close}}</h4>
+			<h4>${{latest_bar.high_52wk}}</h4>
+			<h4>${{latest_bar.low_52wk}}</h4>
 			<h4>{{latest_bar.market_cap | format_large_nums}}</h4>
 			<h4>{{avg_trading_vol | format_large_nums}}</h4>
 		      </div>
@@ -133,7 +137,7 @@
                       <form class="form-inline" onsubmit="return false;">
                         <div class='form-container'>
                           <label id="threshold-label" for="threshold">Signal Conf. Threshold</label>
-                          <input type="text" id="threshold-field" class="form-control" id="threshold" value="60">%
+                          <input type="text" id="threshold-field" class="form-control" id="threshold" value="70">%
                           <button id="update-btn" type="button" class="btn btn-default">Update</button>
                           <button id="reset-btn" type="button" class="btn btn-default">Reset Zoom</button>
                         </div>
@@ -199,8 +203,8 @@
                     <td><small>{{entry.SignalDirection}}</small></td>
                     <td><small>{{entry.SignalConfidence}}</small></td>
                     <td><small>{{entry.SignalGenerationDate | format_date_table }}</small></td>
-                    <td><small>{{entry.F_EOD_1q_abs_return}}</small></td>
-                    <td><small>{{entry.F_EOD_2q_abs_return}}</small></td>
+                    <td><small>{{entry.inv_1q_return}}</small></td>
+                    <td><small>{{entry.inv_2q_return}}</small></td>
                   </tr>
                   {% endfor %}
 
@@ -237,8 +241,8 @@ function checkmarkFormatter(value) {
 }
 
 function confidenceFormatter(value) {
-  if (!value) {
-    return "";
+  if (value==null) {
+    return "n.a.";
   } else { 
     return "<small>"+numeral(value).format('(0%)')+"</small>";}
 }
@@ -412,7 +416,7 @@ $(document).ready(function() {
     markerDataHref = {'LONG':[], 'SHORT':[]};
 
     var currentX, lastX, currentLongY, lastLongY, currentShortY, lastShortY;
-    var verticalOffset = 10;
+    var verticalOffset = 2;
     var threshold = parseFloat($('#threshold-field').val()) / 100; // convert from field % to decimal
     for(var x = 0; x < graphMarkerData.length; x++) {
       var currentPt = graphMarkerData[x];
@@ -468,13 +472,13 @@ $(document).ready(function() {
     { 
       label: "LONG", 
       data: markerLongData, 
-      color: '#17a084',
+      color: '#0018b7',
       points: { 
         radius: 2,
         show: true, 
         symbol: "triangle",
         fill: true, 
-        fillColor: '#17a084'
+        fillColor: '#0018b7'
 
       },  
       lines: {
@@ -591,8 +595,8 @@ function toggleTableThreshold() {
 
         var t1 = obj['SignalDirection'];
         var p1 = (obj['SignalConfidence'] * 100).toFixed(2) + '%';
-        var p2 = (obj['F_EOD_1q_abs_return'] * 100).toFixed(2) + '%';
-        var p3 = (obj['F_EOD_2q_abs_return'] * 100).toFixed(2) + '%';
+        var p2 = (obj['inv_1q_return'] * 100).toFixed(2) + '%';
+        var p3 = (obj['inv_2q_return'] * 100).toFixed(2) + '%';
         // var row = $(loc + ' td');
         // var t1 = row[1].textContent;
         // var p1 = row[8].textContent;

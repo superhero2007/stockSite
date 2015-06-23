@@ -86,56 +86,35 @@ def insider_transactions_ticker(request,ticker):
                         'market_cap','VolSMA30','high_52wk','low_52wk']
 
     price_db = sql_conn.get_qm_eod_data(ticker=ticker,start_date=datetime.datetime(2002,1,1),data_list=price_db_columns)
-    price_db['Index'] = range(0,len(price_db))
-    price_db['Date'] = price_db.index
-    price_db.set_index(['Index'],inplace=True)
 
     if (not(len(price_db))):
         template = loader.get_template('site_app/ticker_not_found.html')
         context = RequestContext(request,{'ticker':ticker})
         return HttpResponse(template.render(context))
 
+    #calculate returns for signals
+    def calculate_return(st,days,price_db):
+        i = price_db.index.searchsorted(st+datetime.timedelta(days=1))
+        if (i==len(price_db)):
+            return(0.0)
+        end = price_db.adj_close.asof(st+datetime.timedelta(days=days))
+        beg = price_db.ix[i,'adj_close']
+        return((end/beg)-1)
+    ticker_data['inv_1q_return'] = ticker_data.AcceptedDate.apply(lambda x: calculate_return(x,90,price_db))
+    ticker_data['inv_2q_return'] = ticker_data.AcceptedDate.apply(lambda x: calculate_return(x,180,price_db))
+    ticker_data.inv_1q_return = ticker_data.inv_1q_return.where(ticker_data.SignalDirection=='LONG',-ticker_data.inv_1q_return)
+    ticker_data.inv_2q_return = ticker_data.inv_2q_return.where(ticker_data.SignalDirection=='LONG',-ticker_data.inv_2q_return)
+
+    # change the index of price db so that it can work with the markers
+    price_db['Index'] = range(0,len(price_db))
+    price_db['Date'] = price_db.index
+    price_db.set_index(['Index'],inplace=True)
+
     #convert to JSON for exchange with JS
     chart_data = price_db.to_json(orient='records', date_format='iso') 
     table_data = ticker_data.to_json(orient='records', date_format='iso')
 
-    # # Do some formatting on the ticker data
-    # ticker_data.sort(['Date1','Text4'],ascending=[True, True],inplace=True)
-
-    #find cooresponding graph and table datapoints
-    #it's a bit convoluted, but it'll make the JS graphing function much simpler
-    #   grab the index in price_db (graph) that cooresponds to the entry in ticker_data (table)
-    #     make sure your db pulls these values out as datetime objects (last if statement)
-    # graph_marker_data = [     {
-    #                             "index": g_index, 
-    #                             # "value": price_db['Adj Close'][g_index],
-    #                             "tableIndex": t_index,
-    #                             # "tableDateTime": t_date.value, #just for sorting the table
-    #                             "Percent1": ticker_data['Percent1'][t_index], 
-    #                             "Text4": ticker_data['Text4'][t_index]
-    #                           } 
-    #                             for t_index, t_date in  enumerate(ticker_data['Date1'])
-    #                                 for g_index, g_val in enumerate(price_db['Date'])
-    #                                     if g_val.date() == t_date.date()
-    #                         ] 
-
-    #data for markers
-    #   index: index of date on graph (x axis)
-    #   value: stock price (y axis)
-    #   Percent1: value to threshold
-    #   Text4: LONG or SHORT
-    # graph_marker_data = { 
-    #                         count: { 
-    #                             "index": tuple_data[0], 
-    #                             "value": price_db['Adj Close'][tuple_data[0]], 
-    #                             "Percent1": tuple_data[1],
-    #                             "Text4": tuple_data[2]
-    #                         } 
-    #                             for count, tuple_data in enumerate(graph_marker_indicies) 
-    #                     }
-    # ticker_data.Date1 = ticker_data.Date1.apply(lambda x: x.strftime("%m/%d/%Y %I:%M%p"))
-    # ticker_data.Date2 = ticker_data.Date2.apply(lambda x: None if pd.isnull(x) else x.strftime("%m/%d/%Y %I:%M%p"))
-
+    # build marker data
     it_data = ticker_data.to_dict(orient='records')
     graph_marker_data = [     {
                                 "index": g_index, 
@@ -143,8 +122,8 @@ def insider_transactions_ticker(request,ticker):
                                 "tableIndex": t_index,
                                 # "tableDateTime": t_date.value, #just for sorting the table
                                 "SignalConfidence": it_data[t_index]['SignalConfidence'], 
-                                "1qReturn": it_data[t_index]['F_EOD_1q_abs_return'], 
-                                "2qReturn": it_data[t_index]['F_EOD_2q_abs_return'], 
+                                "inv_1q_return": it_data[t_index]['inv_1q_return'], 
+                                "inv_2q_return": it_data[t_index]['inv_2q_return'], 
                                 "FilerName": it_data[t_index]['FilerName'],
                                 "SignalDirection": it_data[t_index]['SignalDirection']
                               } 
@@ -183,6 +162,7 @@ def insider_transactions_ticker(request,ticker):
     #           'price_db':price_db} # may have to convert price db to dict
     # return render(request, 'site_app/strategy1_ticker.html', context)
 
+@login_required
 def ticker_not_found(request):
     template = loader.get_template('site_app/ticker_not_found.html')
     context = RequestContext(request)
@@ -190,16 +170,4 @@ def ticker_not_found(request):
     return HttpResponse(template.render(context))
 
 
-## do not need to be designed right now
-def strategy2_dashboard(request):
-    template = loader.get_template('site_app/strategy2_dashboard.html')
-    context = RequestContext(request)
-
-    return HttpResponse(template.render(context))
-
-def strategy2_ticker(request):
-    template = loader.get_template('site_app/strategy2_ticker.html')
-    context = RequestContext(request)
-
-    return HttpResponse(template.render(context))
 
