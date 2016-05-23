@@ -8,7 +8,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <title>Insider Transactions</title>
+  <title>Semanteon: {{ticker}}</title>
 
   <link href="{% static 'site_app/css/bootstrap.min.css'%}" rel="stylesheet">
   <link href="{% static 'site_app/font-awesome/css/font-awesome.css'%}" rel="stylesheet">
@@ -49,14 +49,14 @@
           <div class="navbar-collapse collapse" id="navbar">
             <ul class="nav navbar-nav">
               <li class="inactive">
-                <a aria-expanded="false" role="button" href="{% url 'insider_transactions_main' %}"> Latest Signals Dashboard</a>
+                <a aria-expanded="false" role="button" href="{% url 'signals' %}"> Latest Signals Dashboard</a>
               </li>
 
               <li class="dropdown">
                 <a aria-expanded="false" role="button" href="#" class="dropdown-toggle" data-toggle="dropdown"> Strategies <span class="caret"></span></a>
                 <ul role="menu" class="dropdown-menu">
-                  <li><a href="{% url 'insider_transactions_main' %}">Insider Transactions</a></li>
-                  <li><a href="{% url 'insider_transactions_main' %}">Others coming soon...</a></li>
+                  <li><a href="{% url 'signals' %}">Signals</a></li>
+                  <li><a href="{% url 'signals' %}">Others coming soon...</a></li>
                 </ul>
               </li>
 
@@ -84,70 +84,76 @@
       </div>
 
       <div class="wrapper wrapper-content">
-        <div class="container">
-          <div class="row">
-            <div class="col-lg-4">
-              <div class="ibox float-e-margins">
-                <div class="ibox-title">
-                  <h2>{{ticker}}</h2>
-                  <h4>{{CompanyName}}<br>
-                      <small>{{zacks_sector}} - {{zacks_ind}}</small></h4>
-                  </div>
-                  <div class="ibox-content">
-                    <div class="row">
-		      <div class = "col-sm-6">
-			<h4>Latest Close</h4>
-			<h4>52-wk high</h4>
-			<h4>52-wk low</h4>
-			<h4>Market Cap</h4>
-			<h4>Avg. Daily trading vol(30-day)</h4>
-		      </div>
-		      <div class = "col-sm-6">
-			<h4>${{latest_bar.close}}</h4>
-			<h4>${{latest_bar.high_52wk}}</h4>
-			<h4>${{latest_bar.low_52wk}}</h4>
-			<h4>{{latest_bar.market_cap | format_large_nums}}</h4>
-			<h4>{{avg_trading_vol | format_large_nums}}</h4>
-		      </div>
-                    </div>
-                    <div class="row">
-                      <div class="m-t-md">
-                        <small class="pull-right">
-                         <i class="fa fa-clock-o"> </i>
-                         As of EOD on {{price_db_latest_date}}
-                       </small>
-                     </div>
-                   </div>
-                 </div>
-               </div>
-             </div>
+        <div class="row">
+          <div class="col-lg-4">
+            <div class="ibox float-e-margins">
+              <div class="ibox-title">
+                <h2><b>{{ticker}}</b></h2>
+                <h4>Company Name...</h4>
+                <h4>Industry: {{latest_bar.zacks_x_sector_desc}}</h4>
+		<h4>Sector: {{latest_bar.zacks_x_ind_desc}}</h4>
+	      </div>
+	    </div>
+	  </div>
+          <div class="col-lg-4">
+            <div class="ibox float-e-margins">
+              <div class="ibox-title">
+		<h4>Market Cap: {{latest_bar.market_cap | format_large_nums}}</h4>
+		<h4>Avg. Daily trading vol (30-day): {{latest_bar.daily_average_trading_value | format_large_nums}}</h4>
 
-             <div class="col-lg-8">
-              <div class="ibox float-e-margins">
-                <div class="ibox-content">
-                  <div>
-                    <h3 class="font-bold no-margins">Stock Price History And Signals</h3>
-                  </div>
+	      </div>
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-lg-11">
+            <div class="ibox float-e-margins">
+              <div class="ibox-content">
+                <div>
+                  <h3 class="font-bold no-margins">Stock Price History And Signals</h3>
+                </div>
 
-                  <div class="m-t-sm">
-                    <div class="row">
-                      <div id="flot-chart1" style="width:710px;height:300px">.
-                <!--        <canvas id="lineChart" height="114" width="710" style="width:710px;height:114px"></canvas> -->
+                <div class="m-t-sm">
+                  <div class="row">
+                    <div class="col-lg-9">
+		      <div id="flot-chart1" style="width:710px;height:300px">.
+			<!--        <canvas id="lineChart" height="114" width="710" style="width:710px;height:114px"></canvas> -->
+		      </div>
+		    </div>
+		    <form role="form">
+
+		      <h4>Additional Data:</h4>
+		      <div class="radio" id = "radio1">
+			<label><input type="radio" name="optionsRadios" value="SS_SignalConfidence_RF" checked>Stacked Signal Conf. (RF)</label>
+			<label><input type="radio" name="optionsRadios" value="SS_SignalConfidence_XGB">Stacked Signal Conf. (XGB)</label>
+			<label><input type="radio" name="optionsRadios" value="IT_1q_NPR" >IT: 1q NPR</label>
+			<label><input type="radio" name="optionsRadios" value="IT_Long_180_IT_SignalConfidence_RF" >IT: Long Signal Confidence(180-day)</label>
+			<label><input type="radio" name="optionsRadios" value="IT_Short_180_IT_SignalConfidence_GB" >IT: Short Signal Confidence(180-day)</label>
+			<label><input type="radio" name="optionsRadios" value="MIQ_smart_sentiment_7d" >MIQ: Smart Sentiment 7-day</label>
+			<label><input type="radio" name="optionsRadios" value="MIQ_smart_sentiment_30d" >MIQ: Smart Sentiment 30-day</label>
+			<label><input type="radio" name="optionsRadios" value="SI_ActiveInventory_ActiveUtilisationByQuantity_x" >SI: Active Utilization</label>
+			<label><input type="radio" name="optionsRadios" value="SI_MarketColour_PcFreeFloatQuantityOnLoan" >SI: Pct Free Float Qty On Loan</label>
+			<label><input type="radio" name="optionsRadios" value="SI_MarketColour_DaysToCover" >SI: Days to Cover</label>
+			<label><input type="radio" name="optionsRadios" value="rating_mean" >Analyst: Mean Rating</label>
+			<label><input type="radio" name="optionsRadios" value="tp_mean_est" >Analyst: Mean Target Price</label>
+		      </div>
+		    </form>
+		  </div>
+                  <div class="row">
+                    <form class="form-inline" onsubmit="return false;">
+                      <div class='form-container'>
+                        <label id="threshold-label" for="threshold">Signal Conf. Threshold</label>
+                        <input type="text" id="threshold-field" class="form-control" id="threshold" value="65">%
+                        <button id="update-btn" type="button" class="btn btn-default">Update</button>
+                        <button id="reset-btn" type="button" class="btn btn-default">Reset Zoom</button>
                       </div>
-                      <form class="form-inline" onsubmit="return false;">
-                        <div class='form-container'>
-                          <label id="threshold-label" for="threshold">Signal Conf. Threshold</label>
-                          <input type="text" id="threshold-field" class="form-control" id="threshold" value="70">%
-                          <button id="update-btn" type="button" class="btn btn-default">Update</button>
-                          <button id="reset-btn" type="button" class="btn btn-default">Reset Zoom</button>
-                        </div>
-                      </form>
-                    </div>
+                    </form>
                   </div>
                 </div>
               </div>
             </div>
           </div>
+        </div>
 
           <div class="row">
             <div class="col-lg-12">
@@ -186,8 +192,6 @@
                      <th data-field = "SignalDirection" ><small>Signal Direction</small></th>
                      <th data-field = "SignalConfidence" data-formatter="confidenceFormatter" ><small>Signal Conf.</small></th>
                      <th data-field = "SignalGenerationDate" ><small>Signal Date</small></th>
-                     <th data-field = "1q return" data-formatter="returnFormatter" ><small>1q ret.</small></th>
-                     <th data-field = "2q return" data-formatter="returnFormatter"><small>2q ret.</small></th>
                    </tr>
                  </thead>
                  <tbody>
@@ -200,11 +204,9 @@
                     <td class="check-field"> {{ entry.TenPercentOwner }} </td>
                     <td><small>{{entry.TransType}}</small></td>
                     <td><small>{{entry.DollarValue}}</small></td>
-                    <td><small>{{entry.SignalDirection}}</small></td>
-                    <td><small>{{entry.SignalConfidence}}</small></td>
-                    <td><small>{{entry.SignalGenerationDate | format_date_table }}</small></td>
-                    <td><small>{{entry.inv_1q_return}}</small></td>
-                    <td><small>{{entry.inv_2q_return}}</small></td>
+                    <td><small>{{entry.IT_SignalDirection}}</small></td>
+                    <td><small>{{entry.IT_SignalConfidence_RF}}</small></td>
+                    <td><small>{{entry.IT_SignalGenerationDate | format_date_table }}</small></td>
                   </tr>
                   {% endfor %}
 
@@ -310,15 +312,30 @@ $(document).ready(function() {
     priceData.push( [x, chartData[x]['adj_close'] ]);
   }
 
+  var additionalChartDataCols = ['SS_SignalConfidence_RF','SS_SignalConfidence_XGB',
+                     'IT_1q_NPR','IT_Long_180_IT_SignalConfidence_RF','IT_Short_180_IT_SignalConfidence_GB','MIQ_smart_sentiment_7d','MIQ_smart_sentiment_30d',
+                     'SI_ActiveInventory_ActiveUtilisationByQuantity_x','SI_MarketColour_PcFreeFloatQuantityOnLoan','SI_MarketColour_DaysToCover',
+                     'rating_mean','tp_mean_est'];
+  var additionalChartData = {};
+				   
+  for (var c in additionalChartDataCols) {
+    var col = additionalChartDataCols[c]
+    additionalChartData[col] = [];
+    for(var x=0; x<chartData.length; x++) {
+      additionalChartData[col].push( [x, chartData[x][col]]);
+    }
+  }
+
   var data1 = generateAllChartData();
   var placeholder = $("#flot-chart1");
   var options = {
     xaxis: {
       ticks: xLabelData
     },
-    yaxis: {
+    yaxes: [{
       min: 0
-    },
+    },{min:0,alignTicksWithAxis:"right",position: "right"}],
+
     selection: {
       mode: "x"
     },
@@ -343,12 +360,23 @@ $(document).ready(function() {
     },
     grid: {
       show: true,
-      borderWidth: 0,
+      borderWidth: 1,
       hoverable: true,
-      clickable: true
+      clickable: true,
+      mouseActiveRadius: 50,
+      backgroundColor: { colors: ["#ffffff", "#EDF5FF"] },
+      axisMargin: 20
     },
     legend: {
-      show: false,
+      show: true,
+      noColumns: 0,
+      labelFormatter: function (label, series) {
+        return "<font color=\"black\">" + label + "</font>";
+        },            
+       backgroundColor: "#ffffff",
+      backgroundOpacity: 0.9,
+      labelBoxBorderColor: "#ffffff",
+      position: "nw"
     },
 
     
@@ -403,6 +431,17 @@ $(document).ready(function() {
       toggleTableThreshold();
     });
 
+  $("#radio1").click( function(event) {
+      generateMarkerData();
+      plot.setData( generateAllChartData());
+
+      plot.setupGrid();
+      plot.draw();
+      plot.clearSelection();
+      toggleTableThreshold();
+    });
+
+
   /*
    * create separate data arrays for LONG and SHORT datapoints to draw
    * with different symbols
@@ -413,7 +452,7 @@ $(document).ready(function() {
     //reset markerData arrays
     markerLongData = [];
     markerShortData = [];
-    markerDataHref = {'LONG':[], 'SHORT':[]};
+    markerDataHref = {'Long':[], 'Short':[]};
 
     var currentX, lastX, currentLongY, lastLongY, currentShortY, lastShortY;
     var verticalOffset = 2;
@@ -421,7 +460,7 @@ $(document).ready(function() {
     for(var x = 0; x < graphMarkerData.length; x++) {
       var currentPt = graphMarkerData[x];
 
-      if(currentPt['SignalConfidence'] < threshold) {
+      if(currentPt['IT_SignalConfidence_RF'] < threshold) {
         continue;
       }
 
@@ -430,7 +469,7 @@ $(document).ready(function() {
       currentShortY = lastShortY;
 
       if(currentX === lastX) {
-        if(currentPt['SignalDirection'] === "LONG") {
+        if(currentPt['IT_SignalDirection'] === "Long") {
           currentLongY -= verticalOffset;
         } else {
           currentShortY += verticalOffset;
@@ -440,15 +479,15 @@ $(document).ready(function() {
         currentShortY = chartData[currentX]['adj_close'] + verticalOffset;
       }
 
-      if(currentPt['SignalDirection'] === "LONG") {
+      if(currentPt['IT_SignalDirection'] === "Long") {
         //LONG = green up
         markerLongData.push( [ currentX, currentLongY ] ); 
         
-        markerDataHref['LONG'].push("#table-entry-" + currentPt['tableIndex']); 
+        markerDataHref['Long'].push("#table-entry-" + currentPt['tableIndex']); 
       } else {
         markerShortData.push( [ currentX, currentShortY ]);
 
-        markerDataHref['SHORT'].push("#table-entry-" + currentPt['tableIndex']); 
+        markerDataHref['Short'].push("#table-entry-" + currentPt['tableIndex']); 
       }
       lastX = currentX;
       lastLongY = currentLongY;
@@ -458,10 +497,11 @@ $(document).ready(function() {
 
   function generateAllChartData() {
     generateMarkerData();
+    var additionalDataCol = $('#radio1 input:radio:checked').val()
 
     var data1 = [
     { 
-      label: "Stock Data", 
+      label: "Close", 
       data: priceData, 
       color: '#17a084',
       points: {
@@ -470,7 +510,17 @@ $(document).ready(function() {
       hoverable: false,
     },
     { 
-      label: "LONG", 
+      label: additionalDataCol, 
+      data: additionalChartData[additionalDataCol], 
+      color: '#0000ff',
+      yaxis: 2,
+      points: {
+        show: false
+      },
+      hoverable: false,
+    },
+    { 
+      label: "IT Long", 
       data: markerLongData, 
       color: '#0018b7',
       points: { 
@@ -479,7 +529,6 @@ $(document).ready(function() {
         symbol: "triangle",
         fill: true, 
         fillColor: '#0018b7'
-
       },  
       lines: {
         show: false
@@ -487,7 +536,7 @@ $(document).ready(function() {
       hoverable: true
     },
     { 
-      label: "SHORT", 
+      label: "IT Short", 
       data: markerShortData, 
       color: '#ff0000',
       points: { 
@@ -503,6 +552,7 @@ $(document).ready(function() {
       hoverable: true
     }
     ];
+
 
     return data1;
   }
@@ -541,7 +591,7 @@ function toggleTableThreshold() {
     $('.over-threshold').toggleClass('over-threshold',false);
 
     var threshold = parseFloat($('#threshold-field').val()); //drops percent sign
-    var tableEntries = markerDataHref['SHORT'].concat(markerDataHref['LONG']);
+    var tableEntries = markerDataHref['Short'].concat(markerDataHref['Long']);
 
     for(var x=0; x<tableEntries.length; x++) {
       $(tableEntries[x]).addClass('over-threshold');
@@ -593,10 +643,10 @@ function toggleTableThreshold() {
         var gmiIndex = parseInt(loc.split('#table-entry-')[1]);
         var obj = graphMarkerData[gmiIndex];
 
-        var t1 = obj['SignalDirection'];
-        var p1 = (obj['SignalConfidence'] * 100).toFixed(2) + '%';
-        var p2 = (obj['inv_1q_return'] * 100).toFixed(2) + '%';
-        var p3 = (obj['inv_2q_return'] * 100).toFixed(2) + '%';
+        var t1 = obj['IT_SignalDirection'];
+        var p1 = (obj['IT_SignalConfidence_RF'] * 100).toFixed(2) + '%';
+	// var p2 = (obj['inv_1q_return'] * 100).toFixed(2) + '%';
+        // var p3 = (obj['inv_2q_return'] * 100).toFixed(2) + '%';
         // var row = $(loc + ' td');
         // var t1 = row[1].textContent;
         // var p1 = row[8].textContent;
@@ -604,9 +654,9 @@ function toggleTableThreshold() {
         // var p3 = row[11].textContent;
 
         var html_text = t1 + ' Signal'+ '<br />' +
-                        'Conf.: ' + p1 + '<br />' +
-                        '1q ret.: ' + p2 + '<br />' +
-                        '2q ret.: ' + p3;
+                        'Conf.: ' + p1 + '<br />';
+                        //'1q ret.: ' + p2 + '<br />' +
+                        //'2q ret.: ' + p3;
 
         $("#tooltip").html(html_text)
           ///*.css({top: item.pageY+5, left: item.pageX+5})*/

@@ -7,7 +7,7 @@ def login_view(request):
     context = {}
     redirect_url = request.POST.get('next',
                        request.GET.get('next', 
-                            '/Semanteon/InsiderTransactions'))
+                            '/Semanteon/Signals'))
     context['next'] = redirect_url
 
     if request.method == 'POST':

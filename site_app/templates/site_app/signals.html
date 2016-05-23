@@ -8,7 +8,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <title>Insider Transactions</title>
+  <title>Signals</title>
 
   <link href="{% static 'site_app/css/bootstrap.min.css'%}" rel="stylesheet">
   <link href="{% static 'site_app/font-awesome/css/font-awesome.css'%}" rel="stylesheet">
@@ -49,14 +49,14 @@
           <div class="navbar-collapse collapse" id="navbar">
             <ul class="nav navbar-nav">
               <li class="inactive">
-                <a aria-expanded="false" role="button" href="{% url 'insider_transactions_main' %}"> Latest Signals Dashboard</a>
+                <a aria-expanded="false" role="button" href="{% url 'signals' %}"> Latest Signals Dashboard</a>
               </li>
 
               <li class="dropdown">
                 <a aria-expanded="false" role="button" href="#" class="dropdown-toggle" data-toggle="dropdown"> Strategies <span class="caret"></span></a>
                 <ul role="menu" class="dropdown-menu">
-                  <li><a href="{% url 'insider_transactions_main' %}">Insider Transactions</a></li>
-                  <li><a href="{% url 'insider_transactions_main' %}">Others coming soon...</a></li>
+                  <li><a href="{% url 'signals' %}">Signals</a></li>
+                  <li><a href="{% url 'signals' %}">Others coming soon...</a></li>
                 </ul>
               </li>
 
@@ -90,7 +90,7 @@
             <div class="col-lg-12">
               <div class="ibox float-e-margins">
                 <div class="ibox-title">
-                  <h5>Insider Transactions - Latest Signals</h5>
+                  <h5>Latest Signals</h5>
                 </div>
                 <div class="ibox-content">
                   <table id="table"
@@ -113,38 +113,23 @@
 			 data-page-size = 100>
                   <thead>
                     <tr>
-                     <th data-field = "SignalGenerationDate"><small>Signal Date</small></th>
+                     <th data-field = "SignalDate"><small>Signal Date</small></th>
                      <th data-field = "Ticker" ><small>Ticker</small></th>
-                     <th data-field = "CompanyName" ><small>Company Name</small></th>
                      <th data-field = "Market Cap." data-formatter="marketcapFormatter"><small>Mkt Cap.</small></th>
-                     <th data-field = "Sector-Industry"><small>Sector-Industry</small></th>
-
+                     <th data-field = "Sector"><small>Sector</small></th>
+                     <th data-field = "Industry"><small>Industry</small></th>
                      <th data-field = "SignalDirection" ><small>Signal Direction</small></th>
-                     <th data-field = "SignalConfidence" data-formatter="confidenceFormatter"><small>Signal Conf.</small></th>				    
-                     <th data-field = "FilerName" ><small>Filer Name</small></th>
-                     <th data-field = "InsiderTitle"  ><small>Title</small></th>
-                     <th data-field = "Director" data-formatter="checkmarkFormatter"><small>Director</small></th>
-                     <th data-field = "TransType" ><small>Trans. Type</small></th>
-                     <th data-field = "DollarValue" data-formatter="dollarvalueFormatter"><small>Dollar Value</small></th>
-                     <th data-field = "AcceptedDate" ><small>Filing Date</small></th>
                    </tr>
                  </thead>
                  <tbody>
                   {% for entry in signal_data %} 
                   <tr id="table-entry-{{ forloop.counter0 }}">
-                    <td><small>{{entry.SignalGenerationDate | format_date_table }}</small></td>
-                    <td><a href= "{% url 'insider_transactions_main' %}/{{entry.Ticker}}"><small>{{entry.Ticker}}</small></a></td>
-                    <td><small>{{entry.CompanyName}}</small></td>
-                    <td><small>{{entry.MarketCap}}</small></td>
-                    <td><small>{{entry.zacks_x_sector_desc}}-{{entry.zacks_x_ind_desc}}</small></td>
-                    <td><small>{{entry.SignalDirection}}</small></td>
-                    <td><small>{{entry.SignalConfidence}}</small></td>
-                    <td><small>{{entry.FilerName}}</small></td>
-                    <td><small>{{entry.InsiderTitle}}</small></td>
-                    <td class="check-field"> {{ entry.Director }} </td>
-                    <td><small>{{entry.TransType}}</small></td>
-                    <td><small>{{entry.DollarValue}}</small></td>
-                    <td><a href={{entry.URL}}><small>{{entry.AcceptedDate | format_date_table }}</small></a></td>
+                    <td><small>{{entry.Date | format_date_table }}</small></td>
+                    <td><a href= "{% url 'tickerbase' %}{{entry.bb_ticker}}"><small>{{entry.bb_ticker}}</small></a></td>
+                    <td><small>{{entry.market_cap}}</small></td>
+                    <td><small>{{entry.zacks_x_sector_desc}}</small></td>
+                    <td><small>{{entry.zacks_m_ind_desc}}</small></td>
+                    <td><small>{{entry.SS_SignalDirection}}</small></td>
                   </tr>
                   {% endfor %}
 

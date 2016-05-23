@@ -23,9 +23,10 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = 'ub&$3^u)-zdfh*(qa-_=3-oc0#*c!gh%r54t5)u)*^c+!b+#9v'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ['69.142.92.243']
+#ALLOWED_HOSTS = ['192.168.1.7']
 
 
 # Application definition
@@ -68,7 +69,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
-                'django.core.context_processors.request',
+                #'django.core.context_processors.request',
             ],
         },
     },
@@ -114,3 +115,5 @@ STATIC_ROOT = os.path.join(BASE_DIR,'static')
 
 #change defualt login urls
 LOGIN_URL = '/login'
+
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True

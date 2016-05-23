@@ -14,9 +14,10 @@ def as_percentage(decimal):
 def format_date_table(pandas_date):
     # dt = pandas.DatetimeIndex(periods=10, start='2014-02-01', freq='10T')
     # date.format(formatter=lambda x: x.strftime('%b'))
-    if (pd.notnull(pandas_date)):
-        dt = pandas_date.to_datetime()
-        return dt.strftime('%b. %-d, %Y, %-I:%M%P')
+    dt = pd.to_datetime(pandas_date,errors='coerce') 
+    if (pd.notnull(dt)):
+        #return dt.strftime('%b. %-d, %Y, %-I:%M%P')
+        return dt.strftime('%m-%d-%y')
     else:
         return ('')
 

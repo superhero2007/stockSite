@@ -3,8 +3,9 @@ from django.conf.urls import url
 from . import views
 
 urlpatterns = [ 
-    url(r'^InsiderTransactions/(.*)$', views.insider_transactions_ticker, name='insider_transactions_ticker'),
-    url(r'^InsiderTransactions$', views.insider_transactions_main, name='insider_transactions_main'),
+    url(r'^Ticker/(.*)$', views.ticker, name='ticker'),
+    url(r'^Ticker/', views.ticker,name='tickerbase'),
+    url(r'^Signals$', views.signals, name='signals'),
     url(r'^search_redirect/$', views.search_redirect, name='search_redirect'),
-    url(r'^$', views.insider_transactions_main, name='index'),
+    url(r'^(.*)$', views.signals, name='index'),
 ]

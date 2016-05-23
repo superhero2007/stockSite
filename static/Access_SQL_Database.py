@@ -15,7 +15,6 @@ from dateutil import relativedelta
 import re
 from sqlalchemy import *
 from sqlalchemy.sql import *
-#import ipdb
 
 #from USER_PRIVATE import *
 
@@ -188,21 +187,150 @@ class Access_SQL_Data(object):
                         tech_table.c.chaikin_ad_line,
                         tech_table.c.chaikin_ad_osc,
                         tech_table.c.on_balance_vol,
-                        tech_table.c.rua_beta_1mo,
-                        tech_table.c.rua_beta_3mo,
-                        tech_table.c.rua_beta_6mo,
-                        tech_table.c.rua_beta_1yr,
-                        tech_table.c.rua_beta_2yr,
-                        tech_table.c.sp_beta_1mo,
-                        tech_table.c.sp_beta_3mo,
-                        tech_table.c.sp_beta_6mo,
-                        tech_table.c.sp_beta_1yr,
-                        tech_table.c.sp_beta_2yr,
-                        tech_table.c.vix_beta_1mo,
-                        tech_table.c.vix_beta_3mo,
-                        tech_table.c.vix_beta_6mo,
-                        tech_table.c.vix_beta_1yr,
-                        tech_table.c.vix_beta_2yr,
+                        tech_table.c.rua_beta_20,
+                        tech_table.c.rua_beta_40,
+                        tech_table.c.rua_beta_60,
+                        tech_table.c.rua_beta_80,
+                        tech_table.c.rua_beta_100,
+                        tech_table.c.rua_beta_120,
+                        tech_table.c.rua_beta_252,
+                        tech_table.c.rua_beta_500,
+                        tech_table.c.sp_beta_20,
+                        tech_table.c.sp_beta_40,
+                        tech_table.c.sp_beta_60,
+                        tech_table.c.sp_beta_80,
+                        tech_table.c.sp_beta_100,
+                        tech_table.c.sp_beta_120,
+                        tech_table.c.sp_beta_252,
+                        tech_table.c.sp_beta_500,
+                        tech_table.c.vix_beta_20,
+                        tech_table.c.vix_beta_40,
+                        tech_table.c.vix_beta_60,
+                        tech_table.c.vix_beta_80,
+                        tech_table.c.vix_beta_100,
+                        tech_table.c.vix_beta_120,
+                        tech_table.c.vix_beta_252,
+                        tech_table.c.vix_beta_500,
+                        tech_table.c.rua_beta_20_R2,
+                        tech_table.c.rua_beta_40_R2,
+                        tech_table.c.rua_beta_60_R2,
+                        tech_table.c.rua_beta_80_R2,
+                        tech_table.c.rua_beta_100_R2,
+                        tech_table.c.rua_beta_120_R2,
+                        tech_table.c.rua_beta_252_R2,
+                        tech_table.c.rua_beta_500_R2,
+                        tech_table.c.sp_beta_20_R2,
+                        tech_table.c.sp_beta_40_R2,
+                        tech_table.c.sp_beta_60_R2,
+                        tech_table.c.sp_beta_80_R2,
+                        tech_table.c.sp_beta_100_R2,
+                        tech_table.c.sp_beta_120_R2,
+                        tech_table.c.sp_beta_252_R2,
+                        tech_table.c.sp_beta_500_R2,
+                        tech_table.c.vix_beta_20_R2,
+                        tech_table.c.vix_beta_40_R2,
+                        tech_table.c.vix_beta_60_R2,
+                        tech_table.c.vix_beta_80_R2,
+                        tech_table.c.vix_beta_100_R2,
+                        tech_table.c.vix_beta_120_R2,
+                        tech_table.c.vix_beta_252_R2,
+                        tech_table.c.vix_beta_500_R2,
+                        tech_table.c.rua_upside_beta_20,
+                        tech_table.c.rua_upside_beta_40,
+                        tech_table.c.rua_upside_beta_60,
+                        tech_table.c.rua_upside_beta_80,
+                        tech_table.c.rua_upside_beta_100,
+                        tech_table.c.rua_upside_beta_120,
+                        tech_table.c.rua_upside_beta_252,
+                        tech_table.c.rua_upside_beta_500,
+                        tech_table.c.rua_upside_beta_20_R2,
+                        tech_table.c.rua_upside_beta_40_R2,
+                        tech_table.c.rua_upside_beta_60_R2,
+                        tech_table.c.rua_upside_beta_80_R2,
+                        tech_table.c.rua_upside_beta_100_R2,
+                        tech_table.c.rua_upside_beta_120_R2,
+                        tech_table.c.rua_upside_beta_252_R2,
+                        tech_table.c.rua_upside_beta_500_R2,
+                        tech_table.c.sp_upside_beta_20,
+                        tech_table.c.sp_upside_beta_40,
+                        tech_table.c.sp_upside_beta_60,
+                        tech_table.c.sp_upside_beta_80,
+                        tech_table.c.sp_upside_beta_100,
+                        tech_table.c.sp_upside_beta_120,
+                        tech_table.c.sp_upside_beta_252,
+                        tech_table.c.sp_upside_beta_500,
+                        tech_table.c.sp_upside_beta_20_R2,
+                        tech_table.c.sp_upside_beta_40_R2,
+                        tech_table.c.sp_upside_beta_60_R2,
+                        tech_table.c.sp_upside_beta_80_R2,
+                        tech_table.c.sp_upside_beta_100_R2,
+                        tech_table.c.sp_upside_beta_120_R2,
+                        tech_table.c.sp_upside_beta_252_R2,
+                        tech_table.c.sp_upside_beta_500_R2,
+                        tech_table.c.vix_upside_beta_20,
+                        tech_table.c.vix_upside_beta_40,
+                        tech_table.c.vix_upside_beta_60,
+                        tech_table.c.vix_upside_beta_80,
+                        tech_table.c.vix_upside_beta_100,
+                        tech_table.c.vix_upside_beta_120,
+                        tech_table.c.vix_upside_beta_252,
+                        tech_table.c.vix_upside_beta_500,
+                        tech_table.c.vix_upside_beta_20_R2,
+                        tech_table.c.vix_upside_beta_40_R2,
+                        tech_table.c.vix_upside_beta_60_R2,
+                        tech_table.c.vix_upside_beta_80_R2,
+                        tech_table.c.vix_upside_beta_100_R2,
+                        tech_table.c.vix_upside_beta_120_R2,
+                        tech_table.c.vix_upside_beta_252_R2,
+                        tech_table.c.vix_upside_beta_500_R2,
+                        tech_table.c.rua_downside_beta_20,
+                        tech_table.c.rua_downside_beta_40,
+                        tech_table.c.rua_downside_beta_60,
+                        tech_table.c.rua_downside_beta_80,
+                        tech_table.c.rua_downside_beta_100,
+                        tech_table.c.rua_downside_beta_120,
+                        tech_table.c.rua_downside_beta_252,
+                        tech_table.c.rua_downside_beta_500,
+                        tech_table.c.rua_downside_beta_20_R2,
+                        tech_table.c.rua_downside_beta_40_R2,
+                        tech_table.c.rua_downside_beta_60_R2,
+                        tech_table.c.rua_downside_beta_80_R2,
+                        tech_table.c.rua_downside_beta_100_R2,
+                        tech_table.c.rua_downside_beta_120_R2,
+                        tech_table.c.rua_downside_beta_252_R2,
+                        tech_table.c.rua_downside_beta_500_R2,
+                        tech_table.c.sp_downside_beta_20,
+                        tech_table.c.sp_downside_beta_40,
+                        tech_table.c.sp_downside_beta_60,
+                        tech_table.c.sp_downside_beta_80,
+                        tech_table.c.sp_downside_beta_100,
+                        tech_table.c.sp_downside_beta_120,
+                        tech_table.c.sp_downside_beta_252,
+                        tech_table.c.sp_downside_beta_500,
+                        tech_table.c.sp_downside_beta_20_R2,
+                        tech_table.c.sp_downside_beta_40_R2,
+                        tech_table.c.sp_downside_beta_60_R2,
+                        tech_table.c.sp_downside_beta_80_R2,
+                        tech_table.c.sp_downside_beta_100_R2,
+                        tech_table.c.sp_downside_beta_120_R2,
+                        tech_table.c.sp_downside_beta_252_R2,
+                        tech_table.c.sp_downside_beta_500_R2,
+                        tech_table.c.vix_downside_beta_20,
+                        tech_table.c.vix_downside_beta_40,
+                        tech_table.c.vix_downside_beta_60,
+                        tech_table.c.vix_downside_beta_80,
+                        tech_table.c.vix_downside_beta_100,
+                        tech_table.c.vix_downside_beta_120,
+                        tech_table.c.vix_downside_beta_252,
+                        tech_table.c.vix_downside_beta_500,
+                        tech_table.c.vix_downside_beta_20_R2,
+                        tech_table.c.vix_downside_beta_40_R2,
+                        tech_table.c.vix_downside_beta_60_R2,
+                        tech_table.c.vix_downside_beta_80_R2,
+                        tech_table.c.vix_downside_beta_100_R2,
+                        tech_table.c.vix_downside_beta_120_R2,
+                        tech_table.c.vix_downside_beta_252_R2,
+                        tech_table.c.vix_downside_beta_500_R2,
                         tech_table.c.two_crows,
                         tech_table.c.three_black_crows,
                         tech_table.c.three_inside,
@@ -568,6 +696,7 @@ class Access_SQL_Data(object):
                           sec_table.c.rua_flag,
                           sec_table.c.zacks_active_ticker_flag,
                         short_table.c.data_date,
+                        short_table.c.securities_id,
                         short_table.c.Indicators_DIMV,
                         short_table.c.Indicators_DIPS,
                         short_table.c.Indicators_DNS,
@@ -694,7 +823,7 @@ class Access_SQL_Data(object):
 
         ind_table = Table('market_indices', self.META, autoload=True)
 
-        get_data = select([ind_table.c.price_date, ind_table.c.ticker, ind_table.c.open, ind_table.c.high, ind_table.c.low, ind_table.c.close, ind_table.c.adj_close]).where(ind_table.c.ticker==ticker).where(ind_table.c.price_date.between(s_date, e_date))
+        get_data = select([ind_table.c.price_date, ind_table.c.ticker, ind_table.c.open, ind_table.c.high, ind_table.c.low, ind_table.c.close, ind_table.c.adj_close, ind_table.c.volume]).where(ind_table.c.ticker==ticker).where(ind_table.c.price_date.between(s_date, e_date))
         db_result2 = self.CONN.execute(get_data)
         df = pd.DataFrame(db_result2.fetchall())
 
@@ -1242,6 +1371,204 @@ class Access_SQL_Data(object):
 
             else:
                 df.set_index('price_date', inplace=True)
+                df.sort(inplace=True)              
+                return(df)
+
+        else:
+            return(pd.DataFrame())
+
+
+    def get_sentiment_marketiq(self, sec_id=None, ticker=None, start_date=None, end_date=None, data_list=[]):
+
+        if pd.isnull(start_date) & pd.isnull(end_date):
+            start_date = '1900-01-01'
+            end_date = datetime.datetime.now().date().strftime('%Y-%m-%d')
+
+        elif pd.isnull(start_date) & pd.notnull(end_date):
+            start_date = '1900-01-01'
+
+        elif pd.isnull(end_date) & pd.notnull(start_date):
+            end_date = datetime.datetime.now().date().strftime('%Y-%m-%d')
+        
+        s_date = bindparam('start_date', start_date, DateTime)
+        e_date = bindparam('end_date', end_date, DateTime)
+
+        sent_table = Table('sentiment_marketiq', self.META, autoload=True)
+        sec_table = Table('securities', self.META, autoload=True)
+
+        if pd.isnull(sec_id) & pd.isnull(ticker):
+            return(pd.DataFrame())
+        elif pd.isnull(sec_id):
+            sec_query = select([sec_table.c.securities_id]).where(sec_table.c.bb_ticker==ticker)
+            db_result =  self.CONN.execute(sec_query)
+            for i in db_result: sec_id = i
+
+            if pd.notnull(sec_id):
+                sec_id = sec_id[0]
+            else:
+                return(pd.DataFrame())
+
+        get_data = select([sent_table.c.securities_id,
+                           sent_table.c.data_date,
+                           sent_table.c.bb_ticker,
+                           sent_table.c.symbol,
+                           sent_table.c.last_price,
+                           sent_table.c.smart_sentiment_7d,
+                           sent_table.c.smart_sentiment_30d,
+                           sent_table.c.smart_sentiment_30d_z,
+                           sent_table.c.smart_sentiment_90d,
+                           sent_table.c.smart_sentiment_90d_z,
+                           sent_table.c.smart_velocity,
+                           sent_table.c.sentiment_inflection_threshold_z,
+                           sent_table.c.strategy,
+                           sent_table.c.price_at_inflection,
+                           sent_table.c.threshold_cross,
+                           sent_table.c.reward_risk_ratio,
+                           sent_table.c.time_period,
+                           sent_table.c.historical_accuracy]).where(sent_table.c.securities_id==sec_id).where(sent_table.c.data_date.between(s_date, e_date))
+        db_result2 = self.CONN.execute(get_data)
+        df = pd.DataFrame(db_result2.fetchall())
+
+        if len(df):
+            df.columns = db_result2.keys()
+
+            if len(data_list):
+                j = df.columns.isin(data_list)
+                df = df.loc[:,j]
+                df.set_index('data_date', inplace=True)
+                df.sort(inplace=True)
+                return(df)
+
+            else:
+                df.set_index('data_date', inplace=True)
+                df.sort(inplace=True)              
+                return(df)
+
+        else:
+            return(pd.DataFrame())
+
+
+    def get_cboe_data(self, start_date=None, end_date=None, data_list=[]):
+
+        if pd.isnull(start_date) & pd.isnull(end_date):
+            start_date = '1900-01-01'
+            end_date = datetime.datetime.now().date().strftime('%Y-%m-%d')
+
+        elif pd.isnull(start_date) & pd.notnull(end_date):
+            start_date = '1900-01-01'
+
+        elif pd.isnull(end_date) & pd.notnull(start_date):
+            end_date = datetime.datetime.now().date().strftime('%Y-%m-%d')
+
+        s_date = bindparam('start_date', start_date, DateTime)
+        e_date = bindparam('end_date', end_date, DateTime)
+
+        cboe_table = Table('cboe_put_call_data', self.META, autoload=True)
+        get_data = select([cboe_table.c.data_date,cboe_table.c.vix_put_call_ratio,cboe_table.c.vix_put_volume,cboe_table.c.vix_call_volume,
+                           cboe_table.c.vix_total_option_volume,cboe_table.c.index_call_volume,cboe_table.c.index_put_volume,cboe_table.c.index_total_option_volume,
+                           cboe_table.c.index_put_call_ratio,cboe_table.c.sp500_put_call_ratio,cboe_table.c.sp500_put_volume,cboe_table.c.sp500_call_volume,
+                           cboe_table.c.sp500_total_option_volume,cboe_table.c.total_put_volume,cboe_table.c.total_call_volume,cboe_table.c.total_option_volume,
+                           cboe_table.c.total_put_call_ratio,cboe_table.c.etp_put_volume,cboe_table.c.etp_call_volume,cboe_table.c.etp_total_option_volume,
+                           cboe_table.c.etp_put_call_ratio]).where(cboe_table.c.data_date.between(s_date, e_date))
+        db_result = self.CONN.execute(get_data)
+        df = pd.DataFrame(db_result.fetchall())
+
+        if len(df):
+            df.columns = db_result.keys()
+
+            if len(data_list):
+                j = df.columns.isin(data_list)
+                df = df.loc[:,j]
+                df.set_index('data_date', inplace=True)
+                df.sort(inplace=True)
+                return(df)
+
+            else:
+                df.set_index('data_date', inplace=True)
+                df.sort(inplace=True)              
+                return(df)
+
+        else:
+            return(pd.DataFrame())
+
+
+    def get_aaii_sentiment_data(self, start_date=None, end_date=None, data_list=[]):
+
+        if pd.isnull(start_date) & pd.isnull(end_date):
+            start_date = '1900-01-01'
+            end_date = datetime.datetime.now().date().strftime('%Y-%m-%d')
+
+        elif pd.isnull(start_date) & pd.notnull(end_date):
+            start_date = '1900-01-01'
+
+        elif pd.isnull(end_date) & pd.notnull(start_date):
+            end_date = datetime.datetime.now().date().strftime('%Y-%m-%d')
+
+        s_date = bindparam('start_date', start_date, DateTime)
+        e_date = bindparam('end_date', end_date, DateTime)
+
+        aaii_table = Table('aaii_sentiment', self.META, autoload=True)
+        get_data = select([aaii_table.c.data_date,aaii_table.c.bullish,aaii_table.c.neutral,aaii_table.c.bearish,aaii_table.c.total,
+                           aaii_table.c.bullish_8_week_mov_avg,aaii_table.c.bull_bear_spread,aaii_table.c.bullish_average,
+                           aaii_table.c.bullish_average_plus_stddev,aaii_table.c.bullish_average_minus_stddev,aaii_table.c.sp500_weekly_high,
+                           aaii_table.c.sp500_weekly_low,aaii_table.c.sp500_weekly_close]).where(aaii_table.c.data_date.between(s_date, e_date))
+        db_result = self.CONN.execute(get_data)
+        df = pd.DataFrame(db_result.fetchall())
+
+        if len(df):
+            df.columns = db_result.keys()
+
+            if len(data_list):
+                j = df.columns.isin(data_list)
+                df = df.loc[:,j]
+                df.set_index('data_date', inplace=True)
+                df.sort(inplace=True)
+                return(df)
+
+            else:
+                df.set_index('data_date', inplace=True)
+                df.sort(inplace=True)              
+                return(df)
+
+        else:
+            return(pd.DataFrame())
+
+
+    def get_ise_sentiment_data(self, start_date=None, end_date=None, data_list=[]):
+
+        if pd.isnull(start_date) & pd.isnull(end_date):
+            start_date = '1900-01-01'
+            end_date = datetime.datetime.now().date().strftime('%Y-%m-%d')
+
+        elif pd.isnull(start_date) & pd.notnull(end_date):
+            start_date = '1900-01-01'
+
+        elif pd.isnull(end_date) & pd.notnull(start_date):
+            end_date = datetime.datetime.now().date().strftime('%Y-%m-%d')
+
+        s_date = bindparam('start_date', start_date, DateTime)
+        e_date = bindparam('end_date', end_date, DateTime)
+
+        ise_table = Table('ise_sentiment_index', self.META, autoload=True)
+        get_data = select([ise_table.c.data_date,ise_table.c.all_securities,ise_table.c.all_secs_10_day_avg,
+                           ise_table.c.all_secs_20_day_avg,ise_table.c.all_secs_50_day_avg,ise_table.c.equities,
+                           ise_table.c.equities_10_day_avg,ise_table.c.equities_20_day_avg,ise_table.c.equities_50_day_avg,
+                           ise_table.c.indices_etfs_10_day_avg,ise_table.c.indices_etfs_20_day_avg,ise_table.c.indices_etfs_50_day_avg]).where(ise_table.c.data_date.between(s_date, e_date))
+        db_result = self.CONN.execute(get_data)
+        df = pd.DataFrame(db_result.fetchall())
+
+        if len(df):
+            df.columns = db_result.keys()
+
+            if len(data_list):
+                j = df.columns.isin(data_list)
+                df = df.loc[:,j]
+                df.set_index('data_date', inplace=True)
+                df.sort(inplace=True)
+                return(df)
+
+            else:
+                df.set_index('data_date', inplace=True)
                 df.sort(inplace=True)              
                 return(df)
 
