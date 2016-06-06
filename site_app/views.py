@@ -78,7 +78,6 @@ def ticker(request,ticker):
     st_df.zacks_m_ind_desc = st_df.zacks_m_ind_desc.astype(str).map(lambda x: x.title())
 
     ## add some info to st_df
-    st_df.drop('_id',axis=1,inplace=True) ### need to do this else to_json gives an error
     st_df['volume_sma30'] = pd.rolling_mean(st_df.volume,30)
     st_df['daily_average_trading_value'] = st_df['volume_sma30'] * st_df.close
 
@@ -193,5 +192,31 @@ def ticker_not_found(request):
 
     return HttpResponse(template.render(context))
 
+
+@login_required
+def macro_signals(request):
+    SQL_ENGINE = create_engine('mysql+mysqldb://root:dodona@dodona/website')
+    SQL_CONN = SQL_ENGINE.connect()
+    SQL_META = MetaData(bind=SQL_ENGINE)
+    signals = Table('macro_signal', SQL_META, autoload=True)
+
+    signal_data = pd.read_sql_table('macro_signal',SQL_ENGINE)
+
+    signal_data = signal_data[['price_date','sp_close','rf_conf','conf_threshold']]
+    signal_data.columns = ['Date','sp_close','rf_conf','conf_threshold']
+
+    latest_signal = 'Long' if signal_data.rf_conf.iloc[-1] >= signal_data.conf_threshold.iloc[-1] else 'Short' if signal_data.rf_conf.iloc[-1] <= 1-signal_data.conf_threshold.iloc[-1] else 'Neutral'
+    latest_signal_date = signal_data.Date.iloc[-1].strftime('%m/%d/%Y')
+
+    signal_data = signal_data.to_json(orient='records',date_format='iso')
+
+    context = {'chart_data':signal_data,
+               'latest_signal':latest_signal,
+               'latest_signal_date':latest_signal_date}
+
+    SQL_CONN.close()
+    SQL_ENGINE.dispose()
+
+    return render(request, 'site_app/macro_signals.html', context)
 
 

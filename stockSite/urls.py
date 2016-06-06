@@ -18,8 +18,8 @@ from django.contrib import admin
 from django.conf import settings
 
 urlpatterns = [
-    url(r'^Semanteon/admin/', include(admin.site.urls)),
-    url(r'^Semanteon/accounts/', include('django.contrib.auth.urls')),
+    url(r'^admin/', include(admin.site.urls)),
+    url(r'^accounts/', include('django.contrib.auth.urls')),
     url(r'^Semanteon/', include('site_app.urls')),
     url(r'^', include('authentication.urls')),
     url(r'session_security/', include('session_security.urls')),

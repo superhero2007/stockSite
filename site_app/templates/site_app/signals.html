@@ -49,14 +49,18 @@
           <div class="navbar-collapse collapse" id="navbar">
             <ul class="nav navbar-nav">
               <li class="inactive">
-                <a aria-expanded="false" role="button" href="{% url 'signals' %}"> Latest Signals Dashboard</a>
+                <a aria-expanded="false" role="button" href="{% url 'macro_signals' %}"> Macro Signals </a>
+              </li>
+
+              <li class="inactive">
+                <a aria-expanded="false" role="button" href="{% url 'signals' %}"> Stock Signals</a>
               </li>
 
               <li class="dropdown">
-                <a aria-expanded="false" role="button" href="#" class="dropdown-toggle" data-toggle="dropdown"> Strategies <span class="caret"></span></a>
+                <a aria-expanded="false" role="button" href="#" class="dropdown-toggle" data-toggle="dropdown"> Models <span class="caret"></span></a>
                 <ul role="menu" class="dropdown-menu">
-                  <li><a href="{% url 'signals' %}">Signals</a></li>
-                  <li><a href="{% url 'signals' %}">Others coming soon...</a></li>
+                  <li><a href="{% url 'signals' %}">Stocks</a></li>
+                  <li><a href="{% url 'macro_signals' %}">Macro</a></li>
                 </ul>
               </li>
 
