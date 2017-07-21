@@ -20,6 +20,8 @@ import datetime
 from django.http import HttpResponse
 from django.template import RequestContext, loader
 
+EnterLong = 0.6
+EnterShort = 0.4
 
 @login_required
 def search_redirect(request):
@@ -38,6 +40,8 @@ def signals(request):
     query = sql.select([signals]).where((signals.c.Date >= today-datetime.timedelta(days=7)) & (signals.c.Date <= today))
 
     signal_data = pd.read_sql_query(query, SQL_CONN, index_col=None, parse_dates=['Date']).sort_index()
+    signal_data['SS_SignalDirection'] = signal_data.SS_SignalConfidence.apply(lambda x: 'Long' if x >= EnterLong else 'Short' if x <= EnterShort else 'Neutral')
+
     signal_data = signal_data[signal_data.SS_SignalDirection.isin(['Long','Short'])]
 
     signal_data = signal_data[(signal_data.close >=5) & (signal_data.market_cap >=300000000) & (signal_data.market_cap <=30000000000)]
@@ -61,7 +65,7 @@ def signals(request):
 @login_required
 def ticker(request,ticker):
     ticker = ticker.upper()
-    st_df_columns = ['Date','market_cap','name','volume','zacks_x_sector_desc','zacks_m_ind_desc','close','adj_close','SS_SignalDirection','SS_SignalConfidence_XGB']
+    st_df_columns = ['Date','market_cap','name','volume','zacks_x_sector_desc','zacks_m_ind_desc','close','adj_close','SS_SignalConfidence']
 
     SQL_ENGINE = create_engine('mysql+mysqldb://root:dodona@dodona/website')
     SQL_CONN = SQL_ENGINE.connect()
@@ -75,6 +79,7 @@ def ticker(request,ticker):
         context = RequestContext(request,{'ticker':ticker})
         return HttpResponse(template.render(context))
 
+    st_df['SS_SignalDirection'] = st_df.SS_SignalConfidence.apply(lambda x: None if pd.isnull(x) else 'Long' if x >= EnterLong else 'Short' if x <= EnterShort else 'Neutral')
     st_df.zacks_m_ind_desc = st_df.zacks_m_ind_desc.astype(str).map(lambda x: x.title())
 
     ## add some info to st_df
@@ -202,10 +207,10 @@ def macro_signals(request):
 
     signal_data = pd.read_sql_table('macro_signal',SQL_ENGINE)
 
-    signal_data = signal_data[['price_date','sp_close','rf_conf','conf_threshold']]
-    signal_data.columns = ['Date','sp_close','rf_conf','conf_threshold']
+    signal_data = signal_data[['price_date','sp_close','long_confidence','long_threshold','short_threshold']]
+    signal_data.columns = ['Date','sp_close','long_confidence','long_threshold','short_threshold']
 
-    latest_signal = 'Long' if signal_data.rf_conf.iloc[-1] >= signal_data.conf_threshold.iloc[-1] else 'Short' if signal_data.rf_conf.iloc[-1] <= 1-signal_data.conf_threshold.iloc[-1] else 'Neutral'
+    latest_signal = 'Long' if signal_data.long_confidence.iloc[-1] >= signal_data.long_threshold.iloc[-1]/100 else 'Short' if (1-signal_data.long_confidence.iloc[-1]) >= signal_data.short_threshold.iloc[-1]/100 else 'Neutral'
     latest_signal_date = signal_data.Date.iloc[-1].strftime('%m/%d/%Y')
 
     signal_data = signal_data.to_json(orient='records',date_format='iso')

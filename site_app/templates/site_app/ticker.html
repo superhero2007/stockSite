@@ -232,7 +232,7 @@ $(document).ready(function() {
     priceData.push( [x, chartData[x]['adj_close'] ]);
   }
 
-  var additionalChartDataCols = ['SS_SignalConfidence_XGB'];
+  var additionalChartDataCols = ['SS_SignalConfidence'];
   var additionalChartData = {};
   
 			   
@@ -367,7 +367,7 @@ $(document).ready(function() {
       });
 
   function generateAllChartData() {
-    var additionalDataCol = "SS_SignalConfidence_XGB"
+    var additionalDataCol = "SS_SignalConfidence"
 
     var data1 = [
     { 
