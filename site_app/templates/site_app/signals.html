@@ -49,26 +49,16 @@
           <div class="navbar-collapse collapse" id="navbar">
             <ul class="nav navbar-nav">
               <li class="inactive">
-                <a aria-expanded="false" role="button" href="{% url 'macro_signals' %}"> Macro Signals </a>
+                <a aria-expanded="false" role="button" href="{% url 'signals' %}"> Trading</a>
               </li>
 
               <li class="inactive">
-                <a aria-expanded="false" role="button" href="{% url 'signals' %}"> Stock Signals</a>
+                <a aria-expanded="false" role="button" href="{% url 'signals' %}"  style="color:red;margin:0;"><b>Equity Signals</b></a>
               </li>
 
-              <li class="dropdown">
-                <a aria-expanded="false" role="button" href="#" class="dropdown-toggle" data-toggle="dropdown"> Models <span class="caret"></span></a>
-                <ul role="menu" class="dropdown-menu">
-                  <li><a href="{% url 'signals' %}">Stocks</a></li>
-                  <li><a href="{% url 'macro_signals' %}">Macro</a></li>
-                </ul>
+              <li class="inactive">
+                <a aria-expanded="false" role="button" href="{% url 'macro_signals' %}"> Macro Signals</a>
               </li>
-
-              <form role="search" class="navbar-form-custom" action="{% url 'search_redirect' %}">
-                <div class="form-group">
-                  <input type="text" placeholder="Search for a ticker..." class="form-control" name="ticker" id="top-search">
-                </div>
-              </form>
 
             </ul>
             <ul class="nav navbar-top-links navbar-right">
@@ -86,6 +76,43 @@
           </div>
         </nav>
       </div>
+
+<body class="sub-navigation">
+
+  <div id="wrapper">
+    <div id="page-wrapper" class="gray-bg">
+      <div class="row border-bottom white-bg">
+        <nav class="navbar navbar-static-top" role="navigation">
+
+          <div class="navbar-collapse collapse" id="navbar">
+            <ul class="nav navbar-nav">
+              <li class="inactive">
+                <a aria-expanded="false" role="button" href="{% url 'macro_signals' %}"> Latest Signals </a>
+              </li>
+
+              <li class="inactive">
+                <a aria-expanded="false" role="button" href="{% url 'signals' %}"> Sector/Industry Signals</a>
+              </li>
+	      <!----
+              <li class="dropdown">
+                <a aria-expanded="false" role="button" href="#" class="dropdown-toggle" data-toggle="dropdown"> Models <span class="caret"></span></a>
+                <ul role="menu" class="dropdown-menu">
+                  <li><a href="{% url 'signals' %}">Stocks</a></li>
+                  <li><a href="{% url 'macro_signals' %}">Macro</a></li>
+                </ul>
+              </li>
+	      ---->
+              <form role="search" class="navbar-form-custom" action="{% url 'search_redirect' %}">
+                <div class="form-group">
+                  <input type="text" placeholder="Search for a ticker..." class="form-control" name="ticker" id="top-search">
+                </div>
+              </form>
+
+            </ul>
+          </div>
+        </nav>
+      </div>
+
 
       <div class="wrapper wrapper-content">
         <div class="container">
