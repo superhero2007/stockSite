@@ -232,7 +232,7 @@ $(document).ready(function() {
     priceData.push( [x, chartData[x]['adj_close'] ]);
   }
 
-  var additionalChartDataCols = ['SS_SignalConfidence'];
+  var additionalChartDataCols = ['SignalConfidence'];
   var additionalChartData = {};
   
 			   
@@ -367,7 +367,7 @@ $(document).ready(function() {
       });
 
   function generateAllChartData() {
-    var additionalDataCol = "SS_SignalConfidence"
+    var additionalDataCol = "SignalConfidence"
 
     var data1 = [
     { 
@@ -433,10 +433,10 @@ $(document).ready(function() {
     for(var x=0; x<numTicks; x++) {
       var nextIndex = start + Math.floor(x * stepSize);
 
-      var date = new Date(chartData[nextIndex]['Date']);
+      var date = new Date(chartData[nextIndex]['data_date']);
       labelArray.push( [ nextIndex, formatDate(date) ] );
     }
-    var date = new Date(chartData[chartData.length-1]['Date']);
+    var date = new Date(chartData[chartData.length-1]['data_date']);
     labelArray.push( [ chartData.length-1, formatDate(date) ] );
 
     return labelArray;

@@ -25,8 +25,8 @@ SECRET_KEY = 'ub&$3^u)-zdfh*(qa-_=3-oc0#*c!gh%r54t5)u)*^c+!b+#9v'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['69.142.92.243']
-#ALLOWED_HOSTS = ['192.168.1.7']
+#ALLOWED_HOSTS = ['69.142.92.243']
+ALLOWED_HOSTS = ['127.0.0.1','35.184.25.95','internal.semanteon.com']
 
 
 # Application definition
@@ -41,19 +41,19 @@ INSTALLED_APPS = (
     'site_app',
     'authentication',
     'mod_wsgi.server',
-    'session_security',
+    #'session_security',
 )
 
-MIDDLEWARE_CLASSES = (
+MIDDLEWARE = (
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
+    #'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.middleware.security.SecurityMiddleware',
-    'session_security.middleware.SessionSecurityMiddleware',
+    #'session_security.middleware.SessionSecurityMiddleware',
 )
 
 ROOT_URLCONF = 'stockSite.urls'

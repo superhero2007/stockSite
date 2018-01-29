@@ -23,7 +23,7 @@ sense to use this app with ``SESSION_EXPIRE_AT_BROWSER_CLOSE`` to False.
 
 import warnings
 
-from django.core import urlresolvers
+from django.urls import reverse
 from django.conf import settings
 
 __all__ = ['EXPIRE_AFTER', 'WARN_AFTER', 'PASSIVE_URLS']
@@ -36,7 +36,7 @@ WARN_AFTER = getattr(settings, 'SESSION_SECURITY_WARN_AFTER', 540)
 
 PASSIVE_URLS = getattr(settings, 'SESSION_SECURITY_PASSIVE_URLS', [])
 PASSIVE_URLS += [
-    urlresolvers.reverse('session_security_ping'),
+    reverse('session_security_ping'),
 ]
 
 if not getattr(settings, 'SESSION_EXPIRE_AT_BROWSER_CLOSE', False):

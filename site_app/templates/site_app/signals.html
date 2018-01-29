@@ -128,12 +128,12 @@
                  <tbody>
                   {% for entry in signal_data %} 
                   <tr id="table-entry-{{ forloop.counter0 }}">
-                    <td><small>{{entry.Date | format_date_table }}</small></td>
-                    <td><a href= "{% url 'tickerbase' %}{{entry.bb_ticker}}"><small>{{entry.bb_ticker}}</small></a></td>
+                    <td><small>{{entry.data_date | format_date_table }}</small></td>
+                    <td><a href= "{% url 'tickerbase' %}{{entry.ticker}}"><small>{{entry.ticker}}</small></a></td>
                     <td><small>{{entry.market_cap}}</small></td>
                     <td><small>{{entry.zacks_x_sector_desc}}</small></td>
                     <td><small>{{entry.zacks_m_ind_desc}}</small></td>
-                    <td><small>{{entry.SS_SignalDirection}}</small></td>
+                    <td><small>{{entry.SignalDirection}}</small></td>
                   </tr>
                   {% endfor %}
 
