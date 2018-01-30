@@ -1,0 +1,59 @@
+{% extends "site_app/top_navbar.html" %}
+{% load staticfiles %}
+{% load stock_extras %}
+<!DOCTYPE html>
+<html>
+
+{% block subnav %}
+<head>
+
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Signals</title>
+
+  <link href="{% static 'site_app/css/bootstrap.min.css'%}" rel="stylesheet">
+  <link href="{% static 'site_app/font-awesome/css/font-awesome.css'%}" rel="stylesheet">
+  <link href="{% static 'site_app/css/animate.css'%}" rel="stylesheet">
+  <link rel="stylesheet" href="{% static '//rawgit.com/vitalets/x-editable/master/dist/bootstrap3-editable/css/bootstrap-editable.css'%}">
+  <link href="{% static 'site_app/css/style.css'%}" rel="stylesheet">
+  <link href="{% static 'site_app/css/custom_overrides.css'%}" rel="stylesheet">
+
+  <meta charset="utf-8">
+
+  <script src="{% static 'site_app/numeral/numeral.js' %}"></script>
+  <script src="{% static 'site_app/js/jquery-2.1.1.js' %}"></script>
+  <script src="{% static 'site_app/js/bootstrap.min.js'%}"></script>
+  
+  <script src="{% static '//rawgit.com/vitalets/x-editable/master/dist/bootstrap3-editable/js/bootstrap-editable.js'%}"></script>
+
+</head>
+
+<body>
+  <nav class="navbar navbar-static-top" role="navigation">
+    <div class="navbar-collapse collapse" id="navbar">
+      <ul class="nav navbar-nav">
+	<li class="inactive">
+          <a aria-expanded="false" role="button" href="{% url 'equities_latest_signals' %}"> Latest Signals </a>
+	</li>
+
+	<li class="inactive">
+          <a aria-expanded="false" role="button" href="{% url 'equities_sector_industry_signals' %}"> Sector/Industry Signals</a>
+	</li>
+
+	<form role="search" class="navbar-form-custom" action="{% url 'search_redirect' %}">
+          <div class="form-group">
+            <input type="text" placeholder="Search for a ticker..." class="form-control" name="ticker" id="top-search">
+		    </input>
+          </div>
+	</form>
+      </ul>
+    </div>
+  </nav>
+  {% block content %}{% endblock %}
+</body>
+
+{% endblock %}
+
+
+</html>
