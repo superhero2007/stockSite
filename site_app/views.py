@@ -1,3 +1,4 @@
+from django import forms
 from django.contrib.auth.decorators import login_required
 
 from django.urls import reverse
@@ -12,7 +13,7 @@ import imp
 import os
 import datetime
 
-from semutils.db_access import Access_SQL_DB
+from semutils.db_access import Access_SQL_DB, Access_SQL_Source
 #mongo = imp.load_source('*', os.path.join(settings.STATIC_ROOT,'AccessMongo.py'))
 #sql = imp.load_source('*', os.path.join(settings.STATIC_ROOT,'Access_SQL_Database.py'))
 
@@ -31,7 +32,52 @@ def search_redirect(request):
         return redirect(reverse('ticker',args={ticker}))
 
 @login_required
-def signals(request):
+def under_development(request):
+    if request.method == 'GET':
+        return render(request, 'site_app/under_development.html')
+
+@login_required
+def equities_sector_industry_signals(request):
+    sql_source = Access_SQL_Source('104.197.188.90')
+    sql = Access_SQL_DB('104.197.188.90',db='equity_models')
+
+    sec_master = sql_source.get_sec_master()
+    
+    sectors = sec_master.zacks_x_sector_desc.unique()
+
+    signals = Table('signals_daily_2017_07_01', sql.META, autoload=True)
+
+    today = datetime.datetime.now() 
+    signal_data_columns = ['data_date','ticker','close','market_cap','zacks_x_sector_desc','zacks_m_ind_desc','SignalConfidence']
+
+    query = select([signals.c[x] for x in signal_data_columns]).where(((signals.c.data_date >= today-datetime.timedelta(days=7)) & 
+                                                                       (signals.c.data_date <= today)))
+
+    signal_data = pd.read_sql_query(query, sql.ENGINE, index_col=None, parse_dates=['data_date']).sort_index()
+
+    signal_data = signal_data[signal_data.zacks_x_sector_desc==sectors[0]]
+
+    signal_data.sort_values('data_date', ascending=False, inplace=True)
+
+    signal_data = signal_data.to_dict(orient='records')
+
+    class sector_form(forms.Form):
+        sectors = forms.ChoiceField(choices=[])
+        def __init__(self, sectors):
+            super().__init__(sectors)
+            self.fields['sectors'].choices = sectors
+
+    all_sectors = sector_form([(0,0),(1,1)])
+
+    context = {'signal_data':signal_data,
+               'sector':sectors[0],
+               'all_sectors':all_sectors}
+    sql.close_connection()
+
+    return render(request, 'site_app/equities_sector_industry_signals.html', context)
+
+@login_required
+def equities_latest_signals(request):
     sql = Access_SQL_DB('104.197.188.90',db='equity_models')
 
     signals = Table('signals_daily_2017_07_01', sql.META, autoload=True)
@@ -56,10 +102,10 @@ def signals(request):
     context = {'signal_data':signal_data}
     sql.close_connection()
 
-    return render(request, 'site_app/signals.html', context)
+    return render(request, 'site_app/equities_latest_signals.html', context)
 
 @login_required
-def ticker(request,ticker):
+def equities_ticker(request,ticker):
     ticker = ticker.upper()
     signal_data_columns = ['data_date','market_cap','ticker','volume','zacks_x_sector_desc','zacks_m_ind_desc','close','adj_close','SignalConfidence']
 
@@ -106,7 +152,7 @@ def ticker(request,ticker):
                'latest_signal_date':latest_signal_date}
 
     sql.close_connection()
-    return render(request, 'site_app/ticker.html', context)
+    return render(request, 'site_app/equities_ticker.html', context)
 
 
 @login_required
