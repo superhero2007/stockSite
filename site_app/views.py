@@ -1,22 +1,17 @@
-from django import forms
 from django.contrib.auth.decorators import login_required
 
 from django.urls import reverse
 from django.shortcuts import render,redirect
 from django.conf import settings
 
-from sqlalchemy import create_engine,select,Table, Column, MetaData,sql
-
-import sys
+import sys,os
 import pandas as pd
-import imp
-import os
-import datetime
+import datetime,time
 
 from semutils.db_access import Access_SQL_DB, Access_SQL_Source
-#mongo = imp.load_source('*', os.path.join(settings.STATIC_ROOT,'AccessMongo.py'))
-#sql = imp.load_source('*', os.path.join(settings.STATIC_ROOT,'Access_SQL_Database.py'))
+from sqlalchemy import select,Table, Column
 
+from .forms import SectorForm
 
 # Create your views here.
 from django.http import HttpResponse
@@ -24,12 +19,25 @@ from django.template import RequestContext, loader
 
 EnterLong = 0.6
 EnterShort = 0.4
+MySQL_Server = os.environ.get('MySQL_Server')
+
+def wavg(group, avg_name, weight_name):
+    """
+    In rare instance, we may not have weights, so just return the mean. Customize this if your business case
+    should return otherwise.
+    """
+    d = group[avg_name]
+    w = group[weight_name]
+    try:
+        return (d * w).sum() / w.sum()
+    except ZeroDivisionError:
+        return d.mean()
 
 @login_required
 def search_redirect(request):
     if request.method == 'GET':
         ticker = request.GET.get('ticker','')        
-        return redirect(reverse('ticker',args={ticker}))
+        return redirect(reverse('equities_ticker',args={ticker}))
 
 @login_required
 def under_development(request):
@@ -38,47 +46,71 @@ def under_development(request):
 
 @login_required
 def equities_sector_industry_signals(request):
-    sql_source = Access_SQL_Source('104.197.188.90')
-    sql = Access_SQL_DB('104.197.188.90',db='equity_models')
-
-    sec_master = sql_source.get_sec_master()
-    
-    sectors = sec_master.zacks_x_sector_desc.unique()
-
+    # connect to sql and tables
+    sql_source = Access_SQL_Source(MySQL_Server)
+    sql = Access_SQL_DB(MySQL_Server,db='equity_models')
     signals = Table('signals_daily_2017_07_01', sql.META, autoload=True)
 
+    # download data
     today = datetime.datetime.now() 
-    signal_data_columns = ['data_date','ticker','close','market_cap','zacks_x_sector_desc','zacks_m_ind_desc','SignalConfidence']
+    signal_data_columns = ['data_date','ticker','market_cap','zacks_x_sector_desc','zacks_m_ind_desc','SignalConfidence']
 
-    query = select([signals.c[x] for x in signal_data_columns]).where(((signals.c.data_date >= today-datetime.timedelta(days=7)) & 
-                                                                       (signals.c.data_date <= today)))
+    if request.method=='POST':
+        current_sector_code = request.POST['sectors']
+    else:
+        current_sector_code = SectorForm().fields['sectors'].choices[0][0]
+    
+    sector_form = SectorForm(initial={'sectors': current_sector_code})
+
+    query = select([signals.c[x] for x in signal_data_columns]).where(((signals.c.data_date >= today-datetime.timedelta(days=100)) & 
+                                                                       (signals.c.data_date <= today)) &
+                                                                      (signals.c.zacks_x_sector_code==current_sector_code))
 
     signal_data = pd.read_sql_query(query, sql.ENGINE, index_col=None, parse_dates=['data_date']).sort_index()
+    signal_data.sort_values('data_date',inplace=True)
 
-    signal_data = signal_data[signal_data.zacks_x_sector_desc==sectors[0]]
+    # find current sector name
+    current_sector_name = signal_data.zacks_x_sector_desc.unique()[0]
+                                 
+    # filter data for market cap
+    #signal_data = signal_data[signal_data.market_cap >=300e6]
 
-    signal_data.sort_values('data_date', ascending=False, inplace=True)
+    # create consolidated signal for chart
+    chart_data = signal_data.groupby('data_date').apply(wavg,'SignalConfidence','market_cap')
 
-    signal_data = signal_data.to_dict(orient='records')
+    # format signal for javascript
+    chart_data.sort_index(inplace=True)
+    chart_data = chart_data.to_frame()
+    chart_data.reset_index(drop=False,inplace=True)
+    chart_data.columns = ['date','signal']
+    chart_data['date'] = chart_data['date'].apply(lambda x: time.mktime(x.timetuple()))
+    chart_data = chart_data.values.tolist()
 
-    class sector_form(forms.Form):
-        sectors = forms.ChoiceField(choices=[])
-        def __init__(self, sectors):
-            super().__init__(sectors)
-            self.fields['sectors'].choices = sectors
+    # create table data
+    table_data = signal_data.copy()
+    table_data['delta_1wk'] = signal_data.groupby('ticker').SignalConfidence.diff(5).round(2)
+    table_data['delta_2wk'] = signal_data.groupby('ticker').SignalConfidence.diff(10).round(2)
+    table_data['delta_4wk'] = signal_data.groupby('ticker').SignalConfidence.diff(20).round(2)
+    table_data['SignalConfidence'] = table_data.SignalConfidence.round(2)
 
-    all_sectors = sector_form([(0,0),(1,1)])
+    table_data = table_data[table_data.data_date == table_data.data_date.max()]
+    table_data.sort_values('market_cap',ascending=False,inplace=True)
 
-    context = {'signal_data':signal_data,
-               'sector':sectors[0],
-               'all_sectors':all_sectors}
+    table_data = table_data[['ticker','zacks_x_sector_desc','zacks_m_ind_desc','SignalConfidence','delta_1wk','delta_2wk','delta_4wk']]
+    table_data = table_data.to_dict(orient='records')
+
+    context = {'chart_data':chart_data,
+               'table_data':table_data,
+               'current_sector':current_sector_name,
+               'sector_selector':sector_form}
     sql.close_connection()
+    sql_source.close_connection()
 
     return render(request, 'site_app/equities_sector_industry_signals.html', context)
 
 @login_required
 def equities_latest_signals(request):
-    sql = Access_SQL_DB('104.197.188.90',db='equity_models')
+    sql = Access_SQL_DB(MySQL_Server,db='equity_models')
 
     signals = Table('signals_daily_2017_07_01', sql.META, autoload=True)
 
@@ -109,7 +141,7 @@ def equities_ticker(request,ticker):
     ticker = ticker.upper()
     signal_data_columns = ['data_date','market_cap','ticker','volume','zacks_x_sector_desc','zacks_m_ind_desc','close','adj_close','SignalConfidence']
 
-    sql = Access_SQL_DB('104.197.188.90',db='equity_models')
+    sql = Access_SQL_DB(MySQL_Server,db='equity_models')
     signals = Table('signals_daily_2017_07_01', sql.META, autoload=True)
     query = select([signals.c[x] for x in signal_data_columns]).where(signals.c.ticker ==ticker) 
 

@@ -42,89 +42,95 @@
       <div class="col-sm-3">
         <div class="ibox float-e-margins">
           <div class="ibox-title">
-	    <form method="get" action="{% url 'equities_sector_industry_signals' %}">
-              {{ all_sectors }}
-              <input type="submit" >
+	    <form method="POST", action="{% url 'equities_sector_industry_signals' %}">
+	      {% csrf_token %}
+              {{ sector_selector }}
 	    </form>
 	  </div>
 	</div>
       </div>
-      <!-- <div class="col-sm-9"> -->
-      <!-- 	<div class="ibox float-e-margins"> -->
-      <!-- 	  <div class="ibox-content"> -->
-      <!-- 	    <div class="col-sm-6"> -->
-      <!--         <div> -->
-      <!-- 		<h3 class="font-bold no-margins">Stock Price History And Signal</h3> -->
-      <!--         </div> -->
-      <!-- 	    </div> -->
-      <!-- 	    <div class="col-sm-4"> -->
-      <!-- 	      <div id="flotlegendcontainer"></div> -->
-      <!-- 	    </div> -->
+      <div class="col-sm-9">
+      	<div class="ibox float-e-margins">
+      	  <div class="ibox-content">
+      	    <div class="col-sm-6">
+              <div>
+      		<h3 class="font-bold no-margins">{{current_sector}} Sector Average Signal</h3>
+              </div>
+      	    </div>
+      	    <div class="col-sm-4">
+      	      <div id="flotlegendcontainer"></div>
+      	    </div>
 
-      <!-- 	    <div class="m-t-sm"> -->
-      <!--         <div class="row"> -->
-      <!-- 		<div class="col-lg-9"> -->
-      <!-- 		  <div id="flot-chart1" style="width:710px;height:300px">. -->
-      <!-- 		    <\!--        <canvas id="lineChart" height="114" width="710" style="width:710px;height:114px"></canvas> -\-> -->
-      <!-- 		  </div> -->
-      <!-- 		</div> -->
-      <!-- 	      </div> -->
-      <!--         <div class="row"> -->
-      <!-- 		<form class="form-inline" onsubmit="return false;"> -->
-      <!-- 		  <div class='form-container'> -->
-      <!-- 		    <button id="reset-btn" type="button" class="btn btn-default">Reset Zoom</button> -->
-      <!-- 		  </div> -->
-      <!-- 		</form> -->
-      <!--         </div> -->
-      <!-- 	    </div> -->
-      <!-- 	  </div> -->
-      <!-- 	</div> -->
-      <!-- </div> -->
+      	    <div class="m-t-sm">
+              <div class="row">
+      		<div class="col-lg-9">
+      		  <div id="flot-chart1" style="width:710px;height:300px">.
+      		    <!--        <canvas id="lineChart" height="114" width="710" style="width:710px;height:114px"></canvas> -->
+      		  </div>
+      		</div>
+      	      </div>
+      	    </div>
+      	  </div>
+      	</div>
+      </div>
+      <div class="row">
+        <div class="col-lg-12">
+          <div class="ibox float-e-margins">
+            <div class="ibox-title">
+              <h5>Signal Change By Ticker</h5>
+            </div>
+            <div class="ibox-content">
+              <table id="table"
+                     class = "table table-condensed"
+                     data-toggle = "table"
+                     data-toolbar="#toolbar"
+                     data-toolbar="#filter-bar"
+                     data-search="true"
+                     data-search-align = "left"
+                     data-show-filter= "true"
+                     data-select-item-name="toolbar1"
+                     data-show-refresh="false"
+                     data-show-toggle="true"
+                     data-show-columns="true"
+                     data-show-export="true"
+                     data-show-pagination-switch="true"
+                     data-striped = "true"
+                     data-pagination="true"
+                     data-page-list="[10, 25, 50, 100, ALL]"
+		     data-page-size = 100>
+                <thead>
+                  <tr>
+                    <th data-field = "Ticker" ><small>Ticker</small></th>
+                    <th data-field = "Sector"><small>Sector</small></th>
+                    <th data-field = "Industry"><small>Industry</small></th>
+                    <th data-field = "Current Signal"><small>Current Signal</small></th>
+                    <th data-field = "1 week change"><small>1 week change</small></th>
+                    <th data-field = "2 week change"><small>2 week change</small></th>
+                    <th data-field = "1 month change" ><small>1 month change</small></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for entry in table_data %} 
+                  <tr id="table-entry-{{ forloop.counter0 }}">
+                    <td><a href= "{% url 'tickerbase' %}{{entry.ticker}}"><small>{{entry.ticker}}</small></a></td>
+                    <td><small>{{entry.zacks_x_sector_desc}}</small></td>
+                    <td><small>{{entry.zacks_m_ind_desc}}</small></td>
+                    <td><small>{{entry.SignalConfidence}}</small></td>
+                    <td><small>{{entry.delta_1wk}}</small></td>
+                    <td><small>{{entry.delta_2wk}}</small></td>
+                    <td><small>{{entry.delta_4wk}}</small></td>
+                  </tr>
+                  {% endfor %}
+
+                </tbody>
+              </table>
+            </div>			   
+          </div>
+        </div>
+      </div>
     </div>
 
   </div>
-</body>
-
-<script>
-
-
-function nameFormatter(value, row) {
-  var icon = row.id % 2 === 0 ? 'glyphicon-star' : 'glyphicon-star-empty'
-
-  return '<i class="glyphicon ' + icon + '"></i> ' + value;
-}
-
-
-function checkmarkFormatter(value) {
-  if (value ==1) { 
-    return '<i class="fa fa-check text-navy"></i>';
-  } else { return ""; }
-}
-
-function confidenceFormatter(value) {
-  if (value==null) {
-    return "n.a.";
-  } else { 
-    return "<small>"+numeral(value).format('(0%)')+"</small>";}
-}
-
-function returnFormatter(value) {
-  if (!value) {
-    return "";
-  } else { 
-    return "<small>"+numeral(value).format('(0.0%)')+"</small>";}
-}
-
-function dollarvalueFormatter(value) {
-  if (!value) {
-    return "";
-  } else { 
-    return "<small>"+numeral(value).format('($0,0)')+"</small>";}
-}
-
-
-</script>
-
 
 <!-- Mainly scripts -->
 <script src="{% static 'site_app/js/plugins/metisMenu/jquery.metisMenu.js' %}"></script>
@@ -143,6 +149,7 @@ function dollarvalueFormatter(value) {
 <script src="{% static 'site_app/js/plugins/flot/jquery.flot.symbol.js' %}"></script>
 <script src="{% static 'site_app/js/plugins/flot/jquery.flot.axislabels.js' %}"></script>
 <script src="{% static 'site_app/js/plugins/flot/jquery.flot.canvas.js' %}"></script>
+<script src="{% static 'site_app/js/plugins/flot/jquery.flot.time.js' %}"></script>
 
 <!-- ChartJS-->
 <script src="{% static 'site_app/js/plugins/chartJs/Chart.min.js' %}"></script>
@@ -153,336 +160,32 @@ function dollarvalueFormatter(value) {
 <script src="{% static 'site_app/js/demo/peity-demo.js' %}"></script>
 
 
+
 <script>
+
 //this should be spun off into its own js file at some point
 $(document).ready(function() {
-  
-  var ticker = "{{ticker}}";
+
+  function createDate(time_t) {
+       var date = new Date();
+       date.setTime(time_t*1000);
+       return date;
+  }
+
   var chartData = {{ chart_data | safe }};
 
-  var priceData = [];
-  var markerLongData = [];
-  var markerShortData = [];
-  var markerDataHref = [];
-
-  var xTicksPerChart = 8; //the number of x ticks that show up in a chart
-  var xLabelData = generateXAxisLabels(0, chartData.length, xTicksPerChart);
-
-  for(var x=0; x<chartData.length; x++) {
-    priceData.push( [x, chartData[x]['adj_close'] ]);
-  }
-
-  var additionalChartDataCols = ['SignalConfidence'];
-  var additionalChartData = {};
-  
-			   
-  for (var c in additionalChartDataCols) {
-    var col = additionalChartDataCols[c]
-    additionalChartData[col] = [];
-    for(var x=0; x<chartData.length; x++) {
-      additionalChartData[col].push( [x, chartData[x][col]]);
-    }
-  }
-
-  var initialXZoomMin = Math.max(chartData.length - 680,0);
-
-  var lowerThresholdData = [];
-  for(var x=0; x<chartData.length; x++) {
-    lowerThresholdData.push( [x, 0.4 ]);
-  }
-
-  var upperThresholdData = [];
-  for(var x=0; x<chartData.length; x++) {
-    upperThresholdData.push( [x, 0.6,1 ]);
-  }
+  for (var x=0; x < chartData.length; x++ ) {
+        chartData[x][0] = createDate(chartData[x][0]) }
 
 
-  var data1 = generateAllChartData();
-  var placeholder = $("#flot-chart1");
-  var options = {
-    xaxis: {
-      ticks: xLabelData,
-      min: initialXZoomMin
-    },
-    yaxes: [{min:0,
-      position:"left"
-      //axisLabel:"Stock Price",
-      //axisLabelUseCanvas: true,
-      //axisLabelFontSizePixels: 8,
-      //axisLabelFontFamily: 'Verdana, Arial, Helvetica, Tahoma, sans-serif',
-      //axisLabelPadding: 10,
-    },{min:0,max:1,//alignTicksWithAxis:"right",
-      position:"right",
-      //axisLabel:"Signal Strength",
-      //axisLabelUseCanvas: true,
-      //axisLabelFontSizePixels: 8,
-      //axisLabelFontFamily: 'Verdana, Arial, Helvetica, Tahoma, sans-serif',
-      //axisLabelPadding: 10
-      }],
-
-    selection: {
-      mode: "x"
-    },
-      points: {
-        width: 0.1,
-        show: false,
-        // fill: true,
-        // fillColor: "#00f"
-    },
-    grid: {
-      show: true,
-      borderWidth: 1,
-      hoverable: true,
-      clickable: true,
-      mouseActiveRadius: 50,
-      backgroundColor: { colors: ["#ffffff", "#EDF5FF"] },
-      borderColor: "green",
-      borderWidth: 0.2,
-      axisMargin: 20
-    },
-    legend: {
-      show: true,
-      noColumns: 0,
-      labelFormatter: function (label, series) {
-        return "<font color=\"black\">" + label + "</font>";
-        },            
-       backgroundColor: "#ffffff",
-      backgroundOpacity: 0,
-      labelBoxBorderColor: "#ffffff",
-      //position: "nw"
-      container:$("#flotlegendcontainer")
-
-    },
-
-    comment: {
-        show: true
-    },
-    comments: [{
-        x: 500,
-        y: 50,
-        contents: "Group-1"
-    }, {
-        x: 1.5,
-        y: 1,
-        contents: "Group-2"
-    }],
-    
-  };
-
-  var plot = $.plot(placeholder, data1, options);
-
-
-    placeholder.bind("plotselected", function (event, ranges) {
-
-      var xAxisLabels = generateXAxisLabels(ranges.xaxis.from, ranges.xaxis.to, xTicksPerChart); 
-      $.each(plot.getXAxes(), function(_, axis) {
-        var opts = axis.options;
-
-        opts.min = ranges.xaxis.from;
-        opts.max = ranges.xaxis.to;
-        opts.ticks = xAxisLabels;
-      });
-      plot.setupGrid();
-      plot.draw();
-      plot.clearSelection();
-    });
-
-  $("#reset-btn")
-      .click(function (event) {
-        event.preventDefault();
-
-
-        $.each(plot.getXAxes(), function(_, axis) {
-          var opts = axis.options;
-
-          var xAxisLabels = generateXAxisLabels(axis.datamin, axis.datamax, xTicksPerChart); 
-
-          opts.min = axis.datamin; 
-          opts.max = axis.datamax; 
-          opts.ticks = xAxisLabels;
-        });
-        plot.setupGrid();
-        plot.draw();
-        plot.clearSelection();
-      });
-
-  function generateAllChartData() {
-    var additionalDataCol = "SignalConfidence"
-
-    var data1 = [
-    { 
-      label: ticker, 
-      data: priceData, 
-      color: '#17a084',
-      points: {
-        show: false
-      },
-      hoverable: false,
-      lines: {show:true, fill:false},
-      points: { symbol: "circle", fillColor: "#FF0000", show: false }
-    },
-    { 
-      label: "Signal Strength", 
-      data: additionalChartData[additionalDataCol], 
-      color: '#0000ff',
-      yaxis: 2,
-      points: {
-        show: false
-      },
-      hoverable: false,
-      lines: {show:true, fill:false},
-      points: { symbol: "circle", fillColor: "#FF0000", show: false }
-    },
-    { 
-      label: "Short",
-      data: lowerThresholdData,
-      color: '#ffb3b3',
-      yaxis: 2,
-      points: {
-        show: false
-      },
-      hoverable: false,
-      lines: {show:true,lineWidth:0, fill:true},
-      points: { symbol: "circle", fillColor: "#FF0000", show: false }
-    },
-    { 
-      label:"Long",
-      data: upperThresholdData,
-      color: 'LightGreen',
-      yaxis: 2,
-      points: {
-        show: false
-      },
-      hoverable: false,
-      lines: {show:true, lineWidth:0,fill:true},
-      points: { symbol: "circle", fillColor: "#FF0000", show: false }
-    }
-
-    ]
-
-    return data1;
-  }
-
-  function generateXAxisLabels(start, end, numTicks) {
-    labelArray = [];
-
-    start = Math.floor(start);
-    end = Math.floor(end);
-
-    var stepSize = (end - start) / numTicks;
-    for(var x=0; x<numTicks; x++) {
-      var nextIndex = start + Math.floor(x * stepSize);
-
-      var date = new Date(chartData[nextIndex]['data_date']);
-      labelArray.push( [ nextIndex, formatDate(date) ] );
-    }
-    var date = new Date(chartData[chartData.length-1]['data_date']);
-    labelArray.push( [ chartData.length-1, formatDate(date) ] );
-
-    return labelArray;
-  }
-
-  //needed because date.toLocaleDateString() computes date using timezone info
-  function formatDate(date) {
-    var day = date.getUTCDate();
-    var month = date.getUTCMonth() + 1; //zero offset value
-    var year = date.getUTCFullYear();
-
-    var ret = month + '/' + day + '/' + year;
-    return ret; 
-  }
-
-
-  placeholder.bind("plotclick", function (event, pos, item) {
-    if(!item){
-      return;
-    }
-
-    var dataset = item['series']['label'];
-    var index = item['dataIndex'];
-
-    var loc = markerDataHref[dataset][index];
-
-    $('.selected-row').toggleClass('selected-row',false);
-    $(loc).addClass('selected-row');
-
-    $('html, body').animate({
-      scrollTop: $(loc).offset().top - 100
-    }, 1000);
-  });
-
-
-  $("<div id='tooltip'></div>").css({
-      position: "absolute",
-      display: "none",
-      border: "1px solid #222",
-      color: "#000",
-      padding: "2px",
-      width: "100px",
-      "background-color": "#f3f3f4",
-      opacity: 0.80
-    }).appendTo("body");
-
-    placeholder.bind("plothover", function (event, pos, item) {
-      if(item) {
-        console.log(item);
-
-        var dataset = item['series']['label'];
-        var index = item['dataIndex'];
-        var loc = markerDataHref[dataset][index];
-        console.log(loc);
-
-        var gmiIndex = parseInt(loc.split('#table-entry-')[1]);
-        var obj = graphMarkerData[gmiIndex];
-
-        var t1 = obj['IT_SignalDirection'];
-        var p1 = (obj['IT_SignalConfidence_RF'] * 100).toFixed(2) + '%';
-	// var p2 = (obj['inv_1q_return'] * 100).toFixed(2) + '%';
-        // var p3 = (obj['inv_2q_return'] * 100).toFixed(2) + '%';
-        // var row = $(loc + ' td');
-        // var t1 = row[1].textContent;
-        // var p1 = row[8].textContent;
-        // var p2 = row[10].textContent;
-        // var p3 = row[11].textContent;
-
-        var html_text = t1 + ' Signal'+ '<br />' +
-                        'Conf.: ' + p1 + '<br />';
-                        //'1q ret.: ' + p2 + '<br />' +
-                        //'2q ret.: ' + p3;
-
-        $("#tooltip").html(html_text)
-          ///*.css({top: item.pageY+5, left: item.pageX+5})*/
-	  .css({top: item.pageY+5, right: $(document).width() - item.pageX})
-          .fadeIn(200);
-      } else {
-        $("#tooltip").hide();
-      }
-      /*
-      if ($("#enablePosition:checked").length > 0) {
-        var str = "(" + pos.x.toFixed(2) + ", " + pos.y.toFixed(2) + ")";
-        $("#hoverdata").text(str);
-      }
-
-      if ($("#enableTooltip:checked").length > 0) {
-        if (item) {
-          var x = item.datapoint[0].toFixed(2),
-            y = item.datapoint[1].toFixed(2);
-
-          $("#tooltip").html(item.series.label + " of " + x + " = " + y)
-            .css({top: item.pageY+5, left: item.pageX+5})
-            .fadeIn(200);
-        } else {
-          $("#tooltip").hide();
-        }
-      }
-      */
-    });
-  //force first update
-  $('#update-btn').click();
+  //$.plot($("#flot-chart1"), [chartData], {xaxis:{mode:'time'}, yaxis: { max: 1 } });
+   $.plot($("#flot-chart1"), [chartData], {xaxis:{mode:'time'} });
 
 }); //////////////////end Doc.ready()
 
 </script>
 
-</html>
+
 {% endblock %}
+</body>
+</html>
