@@ -104,9 +104,9 @@
                     <th data-field = "Sector"><small>Sector</small></th>
                     <th data-field = "Industry"><small>Industry</small></th>
                     <th data-field = "Current Signal"><small>Current Signal</small></th>
-                    <th data-field = "1 week change"><small>1 week change</small></th>
-                    <th data-field = "2 week change"><small>2 week change</small></th>
-                    <th data-field = "1 month change" ><small>1 month change</small></th>
+                    <th data-field = "1 week change" data-formatter = "heatmapFormatter"><small>1 week change</small></th>
+                    <th data-field = "2 week change" data-formatter = "heatmapFormatter"><small>2 week change</small></th>
+                    <th data-field = "1 month change" data-formatter = "heatmapFormatter"><small>1 month change</small></th>
                   </tr>
                 </thead>
                 <tbody>
@@ -116,9 +116,9 @@
                     <td><small>{{entry.zacks_x_sector_desc}}</small></td>
                     <td><small>{{entry.zacks_m_ind_desc}}</small></td>
                     <td><small>{{entry.SignalConfidence}}</small></td>
-                    <td><small>{{entry.delta_1wk}}</small></td>
-                    <td><small>{{entry.delta_2wk}}</small></td>
-                    <td><small>{{entry.delta_4wk}}</small></td>
+                    <td>{{entry.delta_1wk}}</td>
+                    <td>{{entry.delta_2wk}}</td>
+                    <td>{{entry.delta_4wk}}</td>
                   </tr>
                   {% endfor %}
 
@@ -131,6 +131,21 @@
     </div>
 
   </div>
+
+<script>
+function heatmapFormatter(value) {
+    if (value>=0.02) {
+       return ("<small><font color=\"green\">"+value+"</font></small>");
+    } else if (value >= 0.01) {
+       return ("<small><font color=\"lightgreen\">"+value+"</font></small>");
+    } else if (value <= -0.02) {
+       return ("<small><font color=\"red\">"+value+"</font></small>");
+    } else if (value <= -0.01) {
+       return ("<small><font color=\"indianred\">"+value+"</font></small>");
+    } else {
+       return ("<small>"+value+"</small>");}
+}
+</script>
 
 <!-- Mainly scripts -->
 <script src="{% static 'site_app/js/plugins/metisMenu/jquery.metisMenu.js' %}"></script>
