@@ -11,7 +11,7 @@ import datetime,time
 from semutils.db_access import Access_SQL_DB, Access_SQL_Source
 from sqlalchemy import select,Table, Column
 
-from .forms import SectorForm
+from .forms import SectorForm,IndustryForm, SectorIndustryForm
 
 # Create your views here.
 from django.http import HttpResponse
@@ -51,23 +51,39 @@ def equities_sector_industry_signals(request):
     sql = Access_SQL_DB(MySQL_Server,db='equity_models')
     signals = Table('signals_daily_2017_07_01', sql.META, autoload=True)
 
-    # download data
+    # download sector data
     today = datetime.datetime.now() 
-    signal_data_columns = ['data_date','ticker','market_cap','zacks_x_sector_desc','zacks_m_ind_desc','SignalConfidence']
+    signal_data_columns = ['data_date','ticker','market_cap','zacks_x_sector_desc','zacks_m_ind_desc','zacks_m_ind_code','SignalConfidence']
 
     if request.method=='POST':
-        current_sector_code = request.POST['sectors']
+        requested_sector_code = int(request.POST['sectors'])
     else:
-        current_sector_code = SectorForm().fields['sectors'].choices[0][0]
-    
-    sector_form = SectorForm(initial={'sectors': current_sector_code})
+        requested_sector_code = 10 # start with Computer and technology
 
     query = select([signals.c[x] for x in signal_data_columns]).where(((signals.c.data_date >= today-datetime.timedelta(days=100)) & 
                                                                        (signals.c.data_date <= today)) &
-                                                                      (signals.c.zacks_x_sector_code==current_sector_code))
+                                                                      (signals.c.zacks_x_sector_code==requested_sector_code))
 
     signal_data = pd.read_sql_query(query, sql.ENGINE, index_col=None, parse_dates=['data_date']).sort_index()
     signal_data.sort_values('data_date',inplace=True)
+
+    # filter data for industries
+    if request.method=='POST':
+        requested_industry_codes = request.POST.getlist('industries')
+        if not isinstance(requested_industry_codes,list):
+            print ('post',request.POST)
+            requested_industry_codes = [requested_industry_codes]
+        requested_industry_codes = [int(x) for x in requested_industry_codes]
+        print ('requested',requested_industry_codes)
+        if signal_data.zacks_m_ind_code.astype(int).isin(requested_industry_codes).any(): # check to see if sector has changed
+            signal_data = signal_data[signal_data.zacks_m_ind_code.astype(int).isin(requested_industry_codes)]
+        else:
+            requested_industry_codes = list(signal_data.zacks_m_ind_code.dropna().astype(int).unique())            
+    else:
+        requested_industry_codes = list(signal_data.zacks_m_ind_code.dropna().astype(int).unique())
+
+    # set up form
+    sector_industry_form = SectorIndustryForm(sector_selection=requested_sector_code,industry_selection=requested_industry_codes)
 
     # find current sector name
     current_sector_name = signal_data.zacks_x_sector_desc.unique()[0]
@@ -102,7 +118,7 @@ def equities_sector_industry_signals(request):
     context = {'chart_data':chart_data,
                'table_data':table_data,
                'current_sector':current_sector_name,
-               'sector_selector':sector_form}
+               'sector_industry_selector':sector_industry_form}
     sql.close_connection()
     sql_source.close_connection()
 

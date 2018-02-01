@@ -39,17 +39,17 @@
 <body>
   <div class="wrapper wrapper-content">
     <div class="row">
-      <div class="col-sm-3">
+      <div class="col-sm-4">
         <div class="ibox float-e-margins">
           <div class="ibox-title">
 	    <form method="POST", action="{% url 'equities_sector_industry_signals' %}">
 	      {% csrf_token %}
-              {{ sector_selector }}
+              {{ sector_industry_selector.as_p }}
 	    </form>
 	  </div>
 	</div>
       </div>
-      <div class="col-sm-9">
+      <div class="col-sm-8">
       	<div class="ibox float-e-margins">
       	  <div class="ibox-content">
       	    <div class="col-sm-6">
