@@ -54,7 +54,7 @@
       	  <div class="ibox-content">
       	    <div class="col-sm-6">
               <div>
-      		<h3 class="font-bold no-margins">{{current_sector}} Sector Average Signal</h3>
+      		<h3 class="font-bold no-margins">Weighted Average Signal (Selected Set)</h3>
               </div>
       	    </div>
       	    <div class="col-sm-4">
@@ -172,14 +172,33 @@ $(document).ready(function() {
        return date;
   }
 
-  var chartData = {{ chart_data | safe }};
+  var chartDataSignal = {{ chart_data_signal | safe }};
+  var chartDataBenchmark = {{ chart_data_benchmark | safe }};
 
-  for (var x=0; x < chartData.length; x++ ) {
-        chartData[x][0] = createDate(chartData[x][0]) }
+  for (var x=0; x < chartDataSignal.length; x++ ) {
+        chartDataSignal[x][0] = createDate(chartDataSignal[x][0]) }
+
+  for (var x=0; x < chartDataBenchmark.length; x++ ) {
+        chartDataBenchmark[x][0] = createDate(chartDataBenchmark[x][0]) }
 
 
-  //$.plot($("#flot-chart1"), [chartData], {xaxis:{mode:'time'}, yaxis: { max: 1 } });
-   $.plot($("#flot-chart1"), [chartData], {xaxis:{mode:'time'} });
+  //$.plot($("#flot-chart1"), [chartDataSignal], {xaxis:{mode:'time'}, yaxis: { max: 1 } });
+  $.plot($("#flot-chart1"), 
+		    [ {
+		    data:chartDataSignal,
+		    label:'Signal',
+		    lines:{show:true},
+		    yaxis:1},
+
+		    {data:chartDataBenchmark,
+		    label:'Benchmark',
+		    lines:{show:true},
+		    yaxis:2
+		    }],
+		    {xaxis:{mode:'time'},
+		    yaxes:[{position:'left',min:0.4, max:0.6},{position:'right'}]});
+
+  // $.plot($("#flot-chart1"), [chartDataSignal], {xaxis:{mode:'time'} });
 
 }); //////////////////end Doc.ready()
 
