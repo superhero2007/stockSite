@@ -11,7 +11,7 @@ import datetime,time
 from semutils.db_access import Access_SQL_DB, Access_SQL_Source
 from sqlalchemy import select,Table, Column
 
-from .forms import SectorForm,IndustryForm, SectorIndustryForm
+from .forms import SectorIndustryForm
 
 # Create your views here.
 from django.http import HttpResponse
