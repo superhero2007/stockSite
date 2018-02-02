@@ -35,10 +35,16 @@ def wavg(group, avg_name, weight_name):
         return d.mean()
 
 @login_required
-def search_redirect(request):
+def equity_search_redirect(request):
     if request.method == 'GET':
         ticker = request.GET.get('ticker','')        
         return redirect(reverse('equities_ticker',args={ticker}))
+
+@login_required
+def insider_search_redirect(request):
+    if request.method == 'GET':
+        ticker = request.GET.get('ticker','')        
+        return redirect(reverse('insider_transactions_ticker',args={ticker}))
 
 @login_required
 def under_development(request):
@@ -185,10 +191,8 @@ def equities_ticker(request,ticker):
 
     ## Check if stacked signal data exists
     if (not(len(st_df))):
-        template = loader.get_template('site_app/ticker_not_found.html')
-        #context = RequestContext(request,{'ticker':ticker})
-        context = {'ticker':ticker}
-        return HttpResponse(template.render(context))
+        return (render,'site_app/ticker_not_found.html',{'ticker':ticker})
+
 
     st_df['SignalDirection'] = st_df.SignalConfidence.apply(lambda x: None if pd.isnull(x) else 'Long' if x >= EnterLong else 'Short' if x <= EnterShort else 'Neutral')
     st_df.zacks_m_ind_desc = st_df.zacks_m_ind_desc.astype(str).map(lambda x: x.title())
@@ -238,7 +242,7 @@ def insider_transactions_latest_filings(request):
 
     # download forms
     today = datetime.datetime.now() 
-    forms = pd.read_sql(formsT.select().where(formsT.c.FilingDate >= today - BDay(2)),sql.ENGINE)
+    forms = pd.read_sql(formsT.select().where(formsT.c.FilingDate >= today - BDay(3)),sql.ENGINE)
 
     # download securities master and merge
     sm = sql.get_sec_master() 
@@ -276,13 +280,14 @@ def insider_transactions_ticker(request,ticker):
         cik = sm.iloc[0].comp_cik
         m_ticker = sm.iloc[0].m_ticker
     else:
-        return # need to do something here
+        return (render,'site_app/ticker_not_found.html',{'ticker':ticker})
 
     # download ticker forms
     forms = pd.read_sql(formsT.select().where(formsT.c.IssuerCIK ==cik),sql.ENGINE)
 
     if (not(len(forms))):
-        return # need to do something here
+        return (render,'site_app/ticker_not_found.html',{'ticker':ticker})
+
 
     forms = forms.merge(sm, left_on='IssuerCIK', right_on = 'comp_cik',how='left')
     forms.sort_values('AcceptedDate', ascending=False, inplace=True)
@@ -299,7 +304,7 @@ def insider_transactions_ticker(request,ticker):
     prices = sql.get_source_eod_data(m_ticker=m_ticker,vendor='QM')
 
     if (not(len(prices))):
-        return # need to do something here
+        return (render,'site_app/ticker_not_found.html',{'ticker':ticker})
 
     # change the index of prices so that it can work with the markers
     prices = prices[prices.index >= '2003-01-01']

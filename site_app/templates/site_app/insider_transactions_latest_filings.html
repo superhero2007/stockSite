@@ -81,7 +81,7 @@
                 <tbody>
                   {% for entry in forms %} 
                   <tr id="table-entry-{{ forloop.counter0 }}">
-                    <td><a href= "{% url 'insider_transactions_ticker' entry.ticker %}"><small>{{entry.ticker}}</small></a></td>
+                    <td><a href= "{% url 'insider_transactions_ticker' ticker=entry.ticker %}"><small>{{entry.ticker}}</small></a></td>
                     <td><small>{{entry.comp_name}}</small></td>
                     <td><small>{{entry.zacks_x_sector_desc}}-{{entry.zacks_x_ind_desc}}</small></td>
                     <td><small>{{entry.FilerName}}</small></td>
