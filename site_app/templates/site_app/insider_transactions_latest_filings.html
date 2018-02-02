@@ -67,14 +67,9 @@
 		     data-page-size = 100>
                 <thead>
                   <tr>
-                    <th data-field = "SignalGenerationDate"><small>Signal Date</small></th>
                     <th data-field = "Ticker" ><small>Ticker</small></th>
                     <th data-field = "CompanyName" ><small>Company Name</small></th>
-                    <th data-field = "Market Cap." data-formatter="marketcapFormatter"><small>Mkt Cap.</small></th>
                     <th data-field = "Sector-Industry"><small>Sector-Industry</small></th>
-
-                    <th data-field = "SignalDirection" ><small>Signal Direction</small></th>
-                    <th data-field = "SignalConfidence" data-formatter="confidenceFormatter"><small>Signal Conf.</small></th>				    
                     <th data-field = "FilerName" ><small>Filer Name</small></th>
                     <th data-field = "InsiderTitle"  ><small>Title</small></th>
                     <th data-field = "Director" data-formatter="checkmarkFormatter"><small>Director</small></th>
@@ -84,15 +79,11 @@
                   </tr>
                 </thead>
                 <tbody>
-                  {% for entry in signal_data %} 
+                  {% for entry in forms %} 
                   <tr id="table-entry-{{ forloop.counter0 }}">
-                    <td><small>{{entry.SignalGenerationDate | format_date_table }}</small></td>
-                    <td><a href= "{% url 'insider_transactions_main' %}/{{entry.Ticker}}"><small>{{entry.Ticker}}</small></a></td>
-                    <td><small>{{entry.CompanyName}}</small></td>
-                    <td><small>{{entry.MarketCap}}</small></td>
+                    <td><a href= "{% url 'insider_transactions_ticker' entry.ticker %}"><small>{{entry.ticker}}</small></a></td>
+                    <td><small>{{entry.comp_name}}</small></td>
                     <td><small>{{entry.zacks_x_sector_desc}}-{{entry.zacks_x_ind_desc}}</small></td>
-                    <td><small>{{entry.SignalDirection}}</small></td>
-                    <td><small>{{entry.SignalConfidence}}</small></td>
                     <td><small>{{entry.FilerName}}</small></td>
                     <td><small>{{entry.InsiderTitle}}</small></td>
                     <td class="check-field"> {{ entry.Director }} </td>

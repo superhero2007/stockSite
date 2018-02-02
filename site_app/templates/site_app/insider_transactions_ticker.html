@@ -1,8 +1,10 @@
+{% extends "site_app/insider_transactions_navbar.html" %}
 {% load staticfiles %}
 {% load stock_extras %}
 <!DOCTYPE html>
 <html>
 
+{% block content %}
 <head>
 
   <meta charset="utf-8">
@@ -34,194 +36,103 @@
 
 </head>
 
-<body class="top-navigation">
-
-  <div id="wrapper">
-    <div id="page-wrapper" class="gray-bg">
-      <div class="row border-bottom white-bg">
-        <nav class="navbar navbar-static-top" role="navigation">
-          <div class="navbar-header">
-            <button aria-controls="navbar" aria-expanded="false" data-target="#navbar" data-toggle="collapse" class="navbar-toggle collapsed" type="button">
-              <i class="fa fa-reorder"></i>
-            </button>
-            <a href="#" class="navbar-brand">Semanteon</a>
+<div class="wrapper wrapper-content">
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-4">
+        <div class="ibox float-e-margins">
+          <div class="ibox-title">
+            <h2>{{stock_info.ticker}}</h2>
+            <h4>{{stock_info.comp_name}}<br>
+            <small>{{stock_info.zacks_x_sector_desc}}</small>
+            <small>{{stock_info.zacks_m_ind_desc}}</small>
           </div>
-          <div class="navbar-collapse collapse" id="navbar">
-            <ul class="nav navbar-nav">
-              <li class="inactive">
-                <a aria-expanded="false" role="button" href="{% url 'insider_transactions_main' %}"> Latest Signals Dashboard</a>
-              </li>
-
-              <li class="dropdown">
-                <a aria-expanded="false" role="button" href="#" class="dropdown-toggle" data-toggle="dropdown"> Strategies <span class="caret"></span></a>
-                <ul role="menu" class="dropdown-menu">
-                  <li><a href="{% url 'insider_transactions_main' %}">Insider Transactions</a></li>
-                  <li><a href="{% url 'insider_transactions_main' %}">Others coming soon...</a></li>
-                </ul>
-              </li>
-
-              <form role="search" class="navbar-form-custom" action="{% url 'search_redirect' %}">
-                <div class="form-group">
-                  <input type="text" placeholder="Search for a ticker..." class="form-control" name="ticker" id="top-search">
-                </div>
-              </form>
-
-            </ul>
-            <ul class="nav navbar-top-links navbar-right">
-              <li>
-                <a href="{% url 'password_change' %}">
-		  <i class ="fa fa-key"></i>Change Password
-		</a>
-              </li>
-              <li>
-                <a href="{% url 'user_logout' %}">
-                  <i class="fa fa-sign-out"></i> Log out
-                </a>
-              </li>
-            </ul>
-          </div>
-        </nav>
+        </div>
       </div>
 
-      <div class="wrapper wrapper-content">
-        <div class="container">
-          <div class="row">
-            <div class="col-lg-4">
-              <div class="ibox float-e-margins">
-                <div class="ibox-title">
-                  <h2>{{ticker}}</h2>
-                  <h4>{{CompanyName}}<br>
-                      <small>{{zacks_sector}} - {{zacks_ind}}</small></h4>
-                  </div>
-                  <div class="ibox-content">
-                    <div class="row">
-		      <div class = "col-sm-6">
-			<h4>Latest Close</h4>
-			<h4>52-wk high</h4>
-			<h4>52-wk low</h4>
-			<h4>Market Cap</h4>
-			<h4>Avg. Daily trading vol(30-day)</h4>
-		      </div>
-		      <div class = "col-sm-6">
-			<h4>${{latest_bar.close}}</h4>
-			<h4>${{latest_bar.high_52wk}}</h4>
-			<h4>${{latest_bar.low_52wk}}</h4>
-			<h4>{{latest_bar.market_cap | format_large_nums}}</h4>
-			<h4>{{avg_trading_vol | format_large_nums}}</h4>
-		      </div>
-                    </div>
-                    <div class="row">
-                      <div class="m-t-md">
-                        <small class="pull-right">
-                         <i class="fa fa-clock-o"> </i>
-                         As of EOD on {{price_db_latest_date}}
-                       </small>
-                     </div>
-                   </div>
-                 </div>
-               </div>
-             </div>
+      <div class="col-lg-8">
+        <div class="ibox float-e-margins">
+          <div class="ibox-content">
+            <div>
+              <h3 class="font-bold no-margins">Stock Price History And Insider Transactions</h3>
+            </div>
 
-             <div class="col-lg-8">
-              <div class="ibox float-e-margins">
-                <div class="ibox-content">
-                  <div>
-                    <h3 class="font-bold no-margins">Stock Price History And Signals</h3>
-                  </div>
-
-                  <div class="m-t-sm">
-                    <div class="row">
-                      <div id="flot-chart1" style="width:710px;height:300px">.
-                <!--        <canvas id="lineChart" height="114" width="710" style="width:710px;height:114px"></canvas> -->
-                      </div>
-                      <form class="form-inline" onsubmit="return false;">
-                        <div class='form-container'>
-                          <label id="threshold-label" for="threshold">Signal Conf. Threshold</label>
-                          <input type="text" id="threshold-field" class="form-control" id="threshold" value="70">%
-                          <button id="update-btn" type="button" class="btn btn-default">Update</button>
-                          <button id="reset-btn" type="button" class="btn btn-default">Reset Zoom</button>
-                        </div>
-                      </form>
-                    </div>
-                  </div>
+            <div class="m-t-sm">
+              <div class="row">
+                <div id="flot-chart1" style="width:710px;height:300px">.
+                  <!--        <canvas id="lineChart" height="114" width="710" style="width:710px;height:114px"></canvas> -->
                 </div>
+                <form class="form-inline" onsubmit="return false;">
+                  <div class='form-container'>
+                    <label id="threshold-label" for="threshold">Dollar Value Threshold ($K)</label>
+                    <input type="text" id="threshold-field" class="form-control" id="threshold" value="100">
+                    <button id="update-btn" type="button" class="btn btn-default">Update</button>
+                    <button id="reset-btn" type="button" class="btn btn-default">Reset Zoom</button>
+                  </div>
+                </form>
               </div>
             </div>
-          </div>
-
-          <div class="row">
-            <div class="col-lg-12">
-              <div class="ibox float-e-margins">
-                <div class="ibox-title">
-                  <h5>Insider Transactions</h5>
-                </div>
-                <div class="ibox-content">
-                  <table id="table"
-                  class = "table table-condensed"
-                  data-toggle = "table"
-                  data-toolbar="#toolbar"
-                  data-toolbar="#filter-bar"
-                  data-search="true"
-                  data-search-align = "left"
-                  data-show-filter= "true"
-                  data-select-item-name="toolbar1"
-                  data-show-refresh="false"
-                  data-show-toggle="true"
-                  data-show-columns="true"
-                  data-show-export="true"
-                  data-show-pagination-switch="true"
-                  data-striped = "true"
-                  data-pagination="false"
-                  data-page-list="[10, 25, 50, 100, ALL]">
-                  <thead>
-                    <tr>
-                     <th data-field = "AcceptedDate"><small>Filing Date</small></th>
-                     <th data-field = "FilerName" ><small>Filer Name</small></th>
-                     <th data-field = "InsiderTitle" ><small>Title</small></th>
-                     <th data-field = "Director" data-formatter="checkmarkFormatter"><small>Director</small></th>
-                     <th data-field = "TenPercentOwner" data-formatter="checkmarkFormatter"><small>10% Owner</small></th>
-
-                     <th data-field = "TransType" ><small>Trans Type</small></th>
-                     <th data-field = "DollarValue" data-formatter="dollarvalueFormatter"><small>Dollar Value</small></th>				    
-                     <th data-field = "SignalDirection" ><small>Signal Direction</small></th>
-                     <th data-field = "SignalConfidence" data-formatter="confidenceFormatter" ><small>Signal Conf.</small></th>
-                     <th data-field = "SignalGenerationDate" ><small>Signal Date</small></th>
-                     <th data-field = "1q return" data-formatter="returnFormatter" ><small>1q ret.</small></th>
-                     <th data-field = "2q return" data-formatter="returnFormatter"><small>2q ret.</small></th>
-                   </tr>
-                 </thead>
-                 <tbody>
-                  {% for entry in it_data %} 
-                  <tr id="table-entry-{{ forloop.counter0 }}">
-                    <td><a href={{entry.URL}}><small>{{entry.AcceptedDate | format_date_table }}</small></a></td>
-                    <td><small>{{entry.FilerName}}</small></td>
-                    <td><small>{{entry.InsiderTitle}}</small></td>
-                    <td class="check-field"> {{ entry.Director }} </td>
-                    <td class="check-field"> {{ entry.TenPercentOwner }} </td>
-                    <td><small>{{entry.TransType}}</small></td>
-                    <td><small>{{entry.DollarValue}}</small></td>
-                    <td><small>{{entry.SignalDirection}}</small></td>
-                    <td><small>{{entry.SignalConfidence}}</small></td>
-                    <td><small>{{entry.SignalGenerationDate | format_date_table }}</small></td>
-                    <td><small>{{entry.inv_1q_return}}</small></td>
-                    <td><small>{{entry.inv_2q_return}}</small></td>
-                  </tr>
-                  {% endfor %}
-
-                </tbody>
-              </table>
-            </div>			   
           </div>
         </div>
       </div>
     </div>
 
+    <div class="row">
+      <div class="col-lg-12">
+        <div class="ibox float-e-margins">
+          <div class="ibox-title">
+            <h5>Insider Transactions</h5>
+          </div>
+          <div class="ibox-content">
+            <table id="table"
+                   class = "table table-condensed"
+                   data-toggle = "table"
+                   data-toolbar="#toolbar"
+                   data-toolbar="#filter-bar"
+                   data-search="true"
+                   data-search-align = "left"
+                   data-show-filter= "true"
+                   data-select-item-name="toolbar1"
+                   data-show-refresh="false"
+                   data-show-toggle="true"
+                   data-show-columns="true"
+                   data-show-export="true"
+                   data-show-pagination-switch="true"
+                   data-striped = "true"
+                   data-pagination="false"
+                   data-page-list="[10, 25, 50, 100, ALL]">
+              <thead>
+                <tr>
+                  <th data-field = "AcceptedDate"><small>Filing Date</small></th>
+                  <th data-field = "FilerName" ><small>Filer Name</small></th>
+                  <th data-field = "InsiderTitle" ><small>Title</small></th>
+                  <th data-field = "Director" data-formatter="checkmarkFormatter"><small>Director</small></th>
+                  <th data-field = "TenPercentOwner" data-formatter="checkmarkFormatter"><small>10% Owner</small></th>
+
+                  <th data-field = "TransType" ><small>Trans Type</small></th>
+                  <th data-field = "DollarValue" data-formatter="dollarvalueFormatter"><small>Dollar Value</small></th>				                   </tr>
+              </thead>
+              <tbody>
+                {% for entry in it_data %} 
+                <tr id="table-entry-{{ forloop.counter0 }}">
+                  <td><a href={{entry.URL}}><small>{{entry.AcceptedDate | format_date_table }}</small></a></td>
+                  <td><small>{{entry.FilerName}}</small></td>
+                  <td><small>{{entry.InsiderTitle}}</small></td>
+                  <td class="check-field"> {{ entry.Director }} </td>
+                  <td class="check-field"> {{ entry.TenPercentOwner }} </td>
+                  <td><small>{{entry.TransType}}</small></td>
+                  <td><small>{{entry.DollarValue}}</small></td>
+                </tr>
+                {% endfor %}
+
+              </tbody>
+            </table>
+          </div>			   
+        </div>
+      </div>
+    </div>
   </div>
 
-</div>
-</div>
-
-</div>
 </div>
 
 <script>
@@ -417,11 +328,11 @@ $(document).ready(function() {
 
     var currentX, lastX, currentLongY, lastLongY, currentShortY, lastShortY;
     var verticalOffset = 2;
-    var threshold = parseFloat($('#threshold-field').val()) / 100; // convert from field % to decimal
+    var threshold = parseFloat($('#threshold-field').val()) * 1000;
     for(var x = 0; x < graphMarkerData.length; x++) {
       var currentPt = graphMarkerData[x];
 
-      if(currentPt['SignalConfidence'] < threshold) {
+      if(currentPt['DollarValue'] < threshold) {
         continue;
       }
 
@@ -517,7 +428,7 @@ $(document).ready(function() {
     for(var x=0; x<numTicks; x++) {
       var nextIndex = start + Math.floor(x * stepSize);
 
-      var date = new Date(chartData[nextIndex]['Date']);
+      var date = new Date(chartData[nextIndex]['data_date']);
       labelArray.push( [ nextIndex, formatDate(date) ] );
     }
     var date = new Date(chartData[chartData.length-1]['Date']);
@@ -649,4 +560,5 @@ function toggleTableThreshold() {
 
 </body>
 
+{% endblock %}
 </html>

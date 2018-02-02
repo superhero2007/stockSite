@@ -7,6 +7,7 @@ from django.conf import settings
 import sys,os
 import pandas as pd
 import datetime,time
+from pandas.tseries.offsets import BDay
 
 from semutils.db_access import Access_SQL_DB, Access_SQL_Source
 from sqlalchemy import select,Table, Column
@@ -237,134 +238,100 @@ def insider_transactions_latest_filings(request):
 
     # download forms
     today = datetime.datetime.now() 
-    forms = pd.read_sql(formsT.select().where(formsT.c.FilingDate > today - datetime.timedelta(days=7)),sql.ENGINE)
+    forms = pd.read_sql(formsT.select().where(formsT.c.FilingDate >= today - BDay(2)),sql.ENGINE)
 
     # download securities master and merge
     sm = sql.get_sec_master() 
-    forms = forms.merge(sm,left_on='IssuerCIK',right_on='comp_cik',how='left')
-
+    forms = forms.merge(sm,left_on='IssuerCIK',right_on='comp_cik',how='right')
+    forms = forms[forms.ticker.notnull() & forms.TransType.notnull()]
+    forms = forms[~forms.TransType.isin(['LDG','HO','RB'])]
     #signal_data['AcceptedDate'] = pd.to_datetime(signal_data['AcceptedDate'])
 
-    forms.sort('AcceptedDate', ascending=False, inplace=True)
+    forms.sort_values('AcceptedDate', ascending=False, inplace=True)
 
-    cols = ['ticker','CompanyName','zacks_x_sector_desc','zacks_x_ind_desc','URL','AcceptedDate','FilerName',
+    cols = ['ticker','comp_name','zacks_x_sector_desc','zacks_x_ind_desc','URL','AcceptedDate','FilerName',
                            'InsiderTitle','Director','TransType',
-                           'DollarValue','SignalDirection','SignalConfidence','SignalGenerationDate']
+                           'DollarValue']
 
     forms = forms[cols]
 
     forms = forms.to_dict(orient='records')
 
     context = {'forms':forms}
-
+    sql.close_connection()
     return render(request, 'site_app/insider_transactions_latest_filings.html', context)
 
 @login_required
 def insider_transactions_ticker(request,ticker):
     ticker = ticker.upper()
+
     ## Load insider transactions data
-    mongo_conn = mongo.AccessMongo()
-    a,b,processed_forms_with_features = mongo_conn.connect_transactions_db()
+    sql = Access_SQL_Source(MySQL_Server)
+    formsT = Table('sec_forms_ownership_source', sql.META, autoload=True)
 
-    ticker_data = pd.DataFrame(list(processed_forms_with_features.find({'Ticker':ticker})))
-    if (not(len(ticker_data))):
-        template = loader.get_template('site_app/ticker_not_found.html')
-        context = RequestContext(request,{'ticker':ticker})
-        return HttpResponse(template.render(context))
+    ## find cik
+    sm = sql.get_sec_master()
+    sm = sm[sm.ticker==ticker]
+    if len(sm)==1:
+        cik = sm.iloc[0].comp_cik
+        m_ticker = sm.iloc[0].m_ticker
+    else:
+        return # need to do something here
 
+    # download ticker forms
+    forms = pd.read_sql(formsT.select().where(formsT.c.IssuerCIK ==cik),sql.ENGINE)
 
-    ticker_data.sort('AcceptedDate', ascending=False, inplace=True)
+    if (not(len(forms))):
+        return # need to do something here
 
-    ticker_data_columns = ['CompanyName','zacks_x_sector_desc','zacks_x_ind_desc','URL','AcceptedDate','FilerName','InsiderTitle','Director','TenPercentOwner','TransType',
-                           'DollarValue','SignalDirection','SignalConfidence','SignalGenerationDate',
-                           'F_EOD_1q_abs_return','F_EOD_2q_abs_return']
+    forms = forms.merge(sm, left_on='IssuerCIK', right_on = 'comp_cik',how='left')
+    forms.sort_values('AcceptedDate', ascending=False, inplace=True)
+    forms = forms[(forms.valid_purchase + forms.valid_sale)!=0]
+    forms['SignalDirection'] = 'LONG'
+    forms['SignalDirection'] = forms.SignalDirection.where(forms.valid_purchase,'SHORT')
 
-    ticker_data = ticker_data[ticker_data_columns]
-    ticker_data['AcceptedDate'] = pd.to_datetime(ticker_data['AcceptedDate'])
-    ticker_data['SignalGenerationDate'] = pd.to_datetime(ticker_data['SignalGenerationDate'])
+    cols = ['ticker','comp_name','zacks_x_sector_desc','zacks_x_ind_desc','URL','AcceptedDate','FilerName','InsiderTitle',
+            'Director','TenPercentOwner','TransType','DollarValue','SignalDirection']
 
-    ## Load price data
-    sql_conn = sql.Access_SQL_Data()
+    forms = forms[cols]
 
-    price_db_columns = ['price_date','close','adj_close', 'adj_vol',
-                        'market_cap','VolSMA30','high_52wk','low_52wk']
+    #get stock prices
+    prices = sql.get_source_eod_data(m_ticker=m_ticker,vendor='QM')
 
-    price_db = sql_conn.get_qm_eod_data(ticker=ticker,start_date=datetime.datetime(2002,1,1),data_list=price_db_columns)
+    if (not(len(prices))):
+        return # need to do something here
 
-    if (not(len(price_db))):
-        template = loader.get_template('site_app/ticker_not_found.html')
-        context = RequestContext(request,{'ticker':ticker})
-        return HttpResponse(template.render(context))
-
-    #calculate returns for signals
-    def calculate_return(st,days,price_db):
-        i = price_db.index.searchsorted(st+datetime.timedelta(days=1))
-        if (i==len(price_db)):
-            return(0.0)
-        end = price_db.adj_close.asof(st+datetime.timedelta(days=days))
-        beg = price_db.ix[i,'adj_close']
-        return((end/beg)-1)
-    ticker_data['inv_1q_return'] = ticker_data.AcceptedDate.apply(lambda x: calculate_return(x,90,price_db))
-    ticker_data['inv_2q_return'] = ticker_data.AcceptedDate.apply(lambda x: calculate_return(x,180,price_db))
-    ticker_data.inv_1q_return = ticker_data.inv_1q_return.where(ticker_data.SignalDirection=='LONG',-ticker_data.inv_1q_return)
-    ticker_data.inv_2q_return = ticker_data.inv_2q_return.where(ticker_data.SignalDirection=='LONG',-ticker_data.inv_2q_return)
-
-    # change the index of price db so that it can work with the markers
-    price_db['Index'] = range(0,len(price_db))
-    price_db['Date'] = price_db.index
-    price_db.set_index(['Index'],inplace=True)
+    # change the index of prices so that it can work with the markers
+    prices = prices[prices.index >= '2003-01-01']
+    prices.reset_index(drop=False,inplace=True)
 
     #convert to JSON for exchange with JS
-    chart_data = price_db.to_json(orient='records', date_format='iso') 
-    table_data = ticker_data.to_json(orient='records', date_format='iso')
+    chart_data = prices.to_json(orient='records', date_format='iso') 
+    table_data = forms.to_json(orient='records', date_format='iso')
 
     # build marker data
-    it_data = ticker_data.to_dict(orient='records')
+    it_data = forms.to_dict(orient='records')
     graph_marker_data = [     {
                                 "index": g_index, 
-                                # "value": price_db['Adj Close'][g_index],
                                 "tableIndex": t_index,
-                                # "tableDateTime": t_date.value, #just for sorting the table
-                                "SignalConfidence": it_data[t_index]['SignalConfidence'], 
-                                "inv_1q_return": it_data[t_index]['inv_1q_return'], 
-                                "inv_2q_return": it_data[t_index]['inv_2q_return'], 
                                 "FilerName": it_data[t_index]['FilerName'],
-                                "SignalDirection": it_data[t_index]['SignalDirection']
+                                "TransType": it_data[t_index]['TransType'],
+                                "DollarValue": it_data[t_index]['DollarValue'],
+                                "SignalDirection": it_data[t_index]['SignalDirection'],
                               } 
                                 for t_index, t_val in  enumerate(it_data)
-                                    for g_index, g_val in enumerate(price_db['Date'])
-                                        if ((g_val.date() == t_val['AcceptedDate'].date()) & pd.notnull(t_val['SignalConfidence']))
+                                    for g_index, g_val in enumerate(prices['data_date'])
+                                        if ((g_val.date() == t_val['AcceptedDate'].date()) & pd.notnull(t_val['TransType'] not in ['LDG','HO','RB']))
                             ] 
-    template = loader.get_template('site_app/insider_transactions_ticker.html')
-    l = price_db.index[-1]
-    context = RequestContext(request,{'ticker':ticker,
-                                      'CompanyName':ticker_data.loc[0,'CompanyName'],
-                                      'zacks_sector':ticker_data.loc[0,'zacks_x_sector_desc'],
-                                      'zacks_ind':ticker_data.loc[0,'zacks_x_ind_desc'],
-                                      'price_db_latest_date':price_db.loc[l,'Date'].date(),
-                                       'latest_bar':price_db.iloc[-1].to_dict(),
-                                       'avg_trading_vol':price_db.loc[l,'close']*price_db.loc[l,'VolSMA30'],
-                                      'chart_data':chart_data,
-                                      'table_data':table_data,
-                                      'graph_marker_data':graph_marker_data,
-                                      'it_data':it_data,
-                                      'price_db':price_db}) # may have to convert price db to dict
-    return HttpResponse(template.render(context))
 
+    context = {'stock_info':sm.iloc[0].to_dict(),
+               'chart_data':chart_data,
+               'table_data':table_data,
+               'graph_marker_data':graph_marker_data,
+               'it_data':it_data,
+               'price_db':prices} # may have to convert price db to dict
 
-##### note: this is a slightly less verbose way of writing the above code:
-#####           it replaces RequestContext and HttpResponse with a dict and render()
-    # context = {'ticker':ticker,
-    #           'company_name':ticker_data.ix[0,'bb_name'],
-    #           'zacks_sector':ticker_data.ix[0,'zacks_x_sector_desc'],
-    #           'zacks_industry':ticker_data.ix[0,'zacks_x_ind_desc'],
-    #           'price_db_latest_date':price_db.index[-1],
-    #           'latest_bar':price_db.ix[-1].to_dict(),
-    #           'avg_trading_vol':price_db.ix[-1,'close']*price_db.ix[-1,'VolSMA30'],
-    #           'chart_data':chart_data,
-    #           'it_data':it_data,
-    #           'price_db':price_db} # may have to convert price db to dict
-    # return render(request, 'site_app/strategy1_ticker.html', context)
+    return render(request, 'site_app/insider_transactions_ticker.html', context)
 
 
 @login_required
