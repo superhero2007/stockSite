@@ -3,6 +3,8 @@ from django.conf.urls import url
 from . import views
 
 urlpatterns = [ 
+    url(r'^Trading/Dashboard$', views.trading_dashboard, name='trading_dashboard'),
+
     url(r'^EquitySignals/Ticker/(.*)$', views.equities_ticker, name='equities_ticker'),
     url(r'^EquitySignals/Ticker/', views.equities_latest_signals,name='tickerbase'),
     url(r'^EquitySignals/LatestSignals$', views.equities_latest_signals, name='equities_latest_signals'),

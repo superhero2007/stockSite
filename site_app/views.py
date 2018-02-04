@@ -52,6 +52,47 @@ def under_development(request):
         return render(request, 'site_app/under_development.html')
 
 @login_required
+def trading_dashboard(request):
+    # connect to sql 
+    sql_source = Access_SQL_Source(MySQL_Server)
+    sql = Access_SQL_DB(MySQL_Server,db='semoms')
+
+    # read account history
+    ah = pd.read_sql_table('account_history',sql.ENGINE)
+
+    # get S&P500
+    sp500 = sql_source.get_source_eod_data(m_ticker = 'S&P5',vendor='EODData')
+    sp500['sp500_daily_return'] = sp500.adj_close.pct_change()
+
+    # add SP500 to account history
+    ah['sp500_daily_return'] = ah.TradeDate.map(sp500['sp500_daily_return'])
+
+    # calculate equity curves
+    ah['Strategy'] = (1+ah.Pnl_Bps/10000).cumprod()
+    ah['SP500'] = (1+ah.sp500_daily_return).cumprod()
+
+    StartingDate = ah.TradeDate.iloc[0]
+    EndingDate = ah.TradeDate.iloc[-1]
+    #convert timestamp to timetuple
+    ah['TradeDate'] = ah['TradeDate'].apply(lambda x: time.mktime(x.timetuple()))
+
+    # build context
+    context = {'StartingDate': StartingDate,
+               'EndingDate': EndingDate,
+               'StartingNAV': '${:,}'.format(int(round(ah.SOD_Nav.iloc[0],0))),
+               'EndingNAV':'${:,}'.format(int(round(ah.EOD_Nav.iloc[-1],0))),
+               'TimeWeightedReturn': '{:.2%}'.format(ah.Strategy.iloc[-1]-1),
+               'chart_data_strategy':ah[['TradeDate','Strategy']].values.tolist(),
+               'chart_data_benchmark':ah[['TradeDate','SP500']].values.tolist(),
+               'benchmark_name': 'SP500'}
+
+    sql.close_connection()
+    sql_source.close_connection()
+
+    return render(request, 'site_app/trading_dashboard.html', context)
+
+
+@login_required
 def equities_sector_industry_signals(request):
     # connect to sql and tables
     sql_source = Access_SQL_Source(MySQL_Server)
