@@ -48,7 +48,8 @@
             <h4>{{StartingDate | format_date_table}} - {{EndingDate | format_date_table}}</h4><br>
 	    <h6 style="margin:0;">Starting NAV:</h6><h5>{{StartingNAV}}</h5><br><br>
             <h6 style="margin:0;">Ending NAV:</h6><h5>{{EndingNAV}}</h5><br><br>
-	    <h6 style="margin:0;">Time Wegithed Return:</h6><h5>{{TimeWeightedReturn}}</h5><br><br>
+	    <h6 style="margin:0;">Time Weigted Return:</h6><h5>{{TimeWeightedReturn}}</h5><br><br>
+	    <h6 style="margin:0;">Time Weigted Return (Invested Capital):</h6><h5>{{TimeWeightedReturnIC}}</h5><br><br>
 	    <h6> </h6>
 	  </div>
 	</div>
@@ -164,10 +165,14 @@ $(document).ready(function() {
 
 
   var chartDataStrategy = {{ chart_data_strategy | safe }};
+  var chartDataStrategyIC = {{ chart_data_strategy_ic | safe }};
   var chartDataBenchmark = {{ chart_data_benchmark | safe }};
 
   for (var x=0; x < chartDataStrategy.length; x++ ) {
         chartDataStrategy[x][0] = createDate(chartDataStrategy[x][0]) }
+
+  for (var x=0; x < chartDataStrategyIC.length; x++ ) {
+        chartDataStrategyIC[x][0] = createDate(chartDataStrategyIC[x][0]) }
 
   for (var x=0; x < chartDataBenchmark.length; x++ ) {
         chartDataBenchmark[x][0] = createDate(chartDataBenchmark[x][0]) }
@@ -176,16 +181,20 @@ $(document).ready(function() {
   console.log(chartDataBenchmark)
 
   $.plot($("#flot-chart1"), 
-		    [ {
-		    data:chartDataStrategy,
+		    [ 
+		    {data:chartDataStrategy,
 		    label:'Strategy',
+		    lines:{show:true}},
+
+		    {data:chartDataStrategyIC,
+		    label:'Strategy (Invested Capital)',
 		    lines:{show:true}},
 
 		    {data:chartDataBenchmark,
 		    label:'{{benchmark_name}}',
 		    lines:{show:true}}],
 
-		    {xaxis:{mode:'time'}});
+		    {xaxis:{mode:'time'},legend:{position:'nw'}});
 
 
 }); //////////////////end Doc.ready()

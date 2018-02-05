@@ -69,6 +69,9 @@ def trading_dashboard(request):
 
     # calculate equity curves
     ah['CumPnl'] = (1+ah.CumPnl)
+    ah['InvestedCapital'] = 12350000
+    ah['InvestedCapital'] = ah['InvestedCapital'].where(ah.TradeDate >= '2018-02-01',ah['InvestedCapital']*.6)
+    ah['CumPnlIC'] = (1+ah.TotalPnl/ah.InvestedCapital).cumprod()
     ah['SP500'] = (1+ah.sp500_daily_return).cumprod()
 
     StartingDate = ah.TradeDate.iloc[0]
@@ -82,7 +85,9 @@ def trading_dashboard(request):
                'StartingNAV': '${:,}'.format(int(round(ah.SOD_Nav.iloc[0],0))),
                'EndingNAV':'${:,}'.format(int(round(ah.EOD_Nav.iloc[-1],0))),
                'TimeWeightedReturn': '{:.2%}'.format(ah.CumPnl.iloc[-1]-1),
+               'TimeWeightedReturnIC': '{:.2%}'.format(ah.CumPnlIC.iloc[-1]-1),
                'chart_data_strategy':ah[['TradeDate','CumPnl']].values.tolist(),
+               'chart_data_strategy_ic':ah[['TradeDate','CumPnlIC']].values.tolist(),
                'chart_data_benchmark':ah[['TradeDate','SP500']].values.tolist(),
                'benchmark_name': 'SP500'}
 
