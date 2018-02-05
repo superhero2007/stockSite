@@ -68,6 +68,7 @@ def trading_dashboard(request):
     ah['sp500_daily_return'] = ah.TradeDate.map(sp500['sp500_daily_return'])
 
     # calculate equity curves
+    ah['CumPnl'] = (1+ah.CumPnl)
     ah['SP500'] = (1+ah.sp500_daily_return).cumprod()
 
     StartingDate = ah.TradeDate.iloc[0]
