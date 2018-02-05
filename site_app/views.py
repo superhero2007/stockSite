@@ -68,7 +68,6 @@ def trading_dashboard(request):
     ah['sp500_daily_return'] = ah.TradeDate.map(sp500['sp500_daily_return'])
 
     # calculate equity curves
-    ah['Strategy'] = (1+ah.Pnl_Bps/10000).cumprod()
     ah['SP500'] = (1+ah.sp500_daily_return).cumprod()
 
     StartingDate = ah.TradeDate.iloc[0]
@@ -81,8 +80,8 @@ def trading_dashboard(request):
                'EndingDate': EndingDate,
                'StartingNAV': '${:,}'.format(int(round(ah.SOD_Nav.iloc[0],0))),
                'EndingNAV':'${:,}'.format(int(round(ah.EOD_Nav.iloc[-1],0))),
-               'TimeWeightedReturn': '{:.2%}'.format(ah.Strategy.iloc[-1]-1),
-               'chart_data_strategy':ah[['TradeDate','Strategy']].values.tolist(),
+               'TimeWeightedReturn': '{:.2%}'.format(ah.CumPnl.iloc[-1]-1),
+               'chart_data_strategy':ah[['TradeDate','CumPnl']].values.tolist(),
                'chart_data_benchmark':ah[['TradeDate','SP500']].values.tolist(),
                'benchmark_name': 'SP500'}
 
