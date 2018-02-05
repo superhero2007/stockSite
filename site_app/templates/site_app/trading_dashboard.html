@@ -1,0 +1,197 @@
+{% extends "site_app/trading_navbar.html" %}
+{% load staticfiles %}
+{% load stock_extras %}
+<!DOCTYPE html>
+<html>
+
+{% block content %}
+<head>
+
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Trading Dashboard</title>
+
+  <link href="{% static 'site_app/css/bootstrap.min.css'%}" rel="stylesheet">
+  <link href="{% static 'site_app/font-awesome/css/font-awesome.css'%}" rel="stylesheet">
+  <link href="{% static 'site_app/css/animate.css'%}" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'site_app/bootstrap-table/src/bootstrap-table.css'%}">
+  <link rel="stylesheet" href="{% static '//rawgit.com/vitalets/x-editable/master/dist/bootstrap3-editable/css/bootstrap-editable.css'%}">
+  <link href="{% static 'site_app/css/style.css'%}" rel="stylesheet">
+  <link href="{% static 'site_app/css/custom_overrides.css'%}" rel="stylesheet">
+
+  <meta charset="utf-8">
+
+  <script src="{% static 'site_app/numeral/numeral.js' %}"></script>
+  <script src="{% static 'site_app/js/jquery-2.1.1.js' %}"></script>
+  <script src="{% static 'site_app/js/bootstrap.min.js'%}"></script>
+  <script src="{% static 'site_app/bootstrap-table/src/bootstrap-table.js'%}"></script>
+  
+  <script src="{% static 'site_app/bootstrap-table/src/extensions/export/bootstrap-table-export.js'%}"></script>
+  <script src="{% static '//rawgit.com/kayalshri/tableExport.jquery.plugin/master/tableExport.js'%}"></script>
+  <script src="{% static '//rawgit.com/kayalshri/tableExport.jquery.plugin/master/jquery.base64.js'%}"></script>
+  <script src="{% static 'site_app/bootstrap-table/src/extensions/editable/bootstrap-table-editable.js' %}"></script>
+  <script src="{% static '//rawgit.com/vitalets/x-editable/master/dist/bootstrap3-editable/js/bootstrap-editable.js'%}"></script>
+  <script src="{% static 'site_app/bootstrap-table/src/extensions/filter/bootstrap-table-filter.js'%}"></script>
+
+
+
+</head>
+
+<body>
+  <div class="wrapper wrapper-content">
+    <div class="row">
+      <div class="col-sm-3">
+        <div class="ibox float-e-margins">
+          <div class="ibox-title">
+            <h4 style="color:red;margin:0;"><b>Performance Summary</b></h4>
+            <h4>{{StartingDate | format_date_table}} - {{EndingDate | format_date_table}}</h4><br>
+	    <h6 style="margin:0;">Starting NAV:</h6><h5>{{StartingNAV}}</h5><br><br>
+            <h6 style="margin:0;">Ending NAV:</h6><h5>{{EndingNAV}}</h5><br><br>
+	    <h6 style="margin:0;">Time Wegithed Return:</h6><h5>{{TimeWeightedReturn}}</h5><br><br>
+	    <h6> </h6>
+	  </div>
+	</div>
+      </div>
+      <div class="col-sm-9">
+	<div class="ibox float-e-margins">
+	  <div class="ibox-content">
+	    <div class="col-sm-6">
+              <div>
+		<h3 class="font-bold no-margins">Time Weighted Return (YTD)</h3>
+              </div>
+	    </div>
+	    <div class="col-sm-4">
+	      <div id="flotlegendcontainer"></div>
+	    </div>
+
+	    <div class="m-t-sm">
+              <div class="row">
+		<div class="col-lg-9">
+		  <div id="flot-chart1" style="width:710px;height:300px">.
+		    <!--        <canvas id="lineChart" height="114" width="710" style="width:710px;height:114px"></canvas> -->
+		  </div>
+		</div>
+	      </div>
+	    </div>
+	  </div>
+	</div>
+      </div>
+    </div>
+
+  </div>
+</body>
+
+<script>
+
+
+function nameFormatter(value, row) {
+  var icon = row.id % 2 === 0 ? 'glyphicon-star' : 'glyphicon-star-empty'
+
+  return '<i class="glyphicon ' + icon + '"></i> ' + value;
+}
+
+
+function checkmarkFormatter(value) {
+  if (value ==1) { 
+    return '<i class="fa fa-check text-navy"></i>';
+  } else { return ""; }
+}
+
+function confidenceFormatter(value) {
+  if (value==null) {
+    return "n.a.";
+  } else { 
+    return "<small>"+numeral(value).format('(0%)')+"</small>";}
+}
+
+function returnFormatter(value) {
+  if (!value) {
+    return "";
+  } else { 
+    return "<small>"+numeral(value).format('(0.0%)')+"</small>";}
+}
+
+function dollarvalueFormatter(value) {
+  if (!value) {
+    return "";
+  } else { 
+    return "<small>"+numeral(value).format('($0,0)')+"</small>";}
+}
+
+
+function createDate(time_t) {
+     var date = new Date();
+     date.setTime(time_t*1000);
+     return date;
+}
+
+</script>
+
+
+<!-- Mainly scripts -->
+<script src="{% static 'site_app/js/plugins/metisMenu/jquery.metisMenu.js' %}"></script>
+<script src="{% static 'site_app/js/plugins/slimscroll/jquery.slimscroll.min.js' %}"></script>
+
+<!-- Custom and plugin javascript -->
+<!-- <script src="{% static 'site_app/js/inspinia.js' %}"></script> -->
+<script src="{% static 'site_app/js/plugins/pace/pace.min.js' %}"></script>
+
+<!-- Flot -->
+<script src="{% static 'site_app/js/plugins/flot/jquery.flot.js' %}"></script>
+<script src="{% static 'site_app/js/plugins/flot/jquery.flot.tooltip.min.js' %}"></script>
+<script src="{% static 'site_app/js/plugins/flot/jquery.flot.resize.js' %}"></script>
+<script src="{% static 'site_app/js/plugins/flot/jquery.flot.selection.js' %}"></script>
+<script src="{% static 'site_app/js/plugins/flot/jquery.flot.navigate.js' %}"></script>
+<script src="{% static 'site_app/js/plugins/flot/jquery.flot.symbol.js' %}"></script>
+<script src="{% static 'site_app/js/plugins/flot/jquery.flot.axislabels.js' %}"></script>
+<script src="{% static 'site_app/js/plugins/flot/jquery.flot.canvas.js' %}"></script>
+<script src="{% static 'site_app/js/plugins/flot/jquery.flot.time.js' %}"></script>
+
+<!-- ChartJS-->
+<script src="{% static 'site_app/js/plugins/chartJs/Chart.min.js' %}"></script>
+
+<!-- Peity -->
+<script src="{% static 'site_app/js/plugins/peity/jquery.peity.min.js' %}"></script>
+<!-- Peity demo -->
+<script src="{% static 'site_app/js/demo/peity-demo.js' %}"></script>
+
+
+<script>
+
+//this should be spun off into its own js file at some point
+$(document).ready(function() {
+
+
+  var chartDataStrategy = {{ chart_data_strategy | safe }};
+  var chartDataBenchmark = {{ chart_data_benchmark | safe }};
+
+  for (var x=0; x < chartDataStrategy.length; x++ ) {
+        chartDataStrategy[x][0] = createDate(chartDataStrategy[x][0]) }
+
+  for (var x=0; x < chartDataBenchmark.length; x++ ) {
+        chartDataBenchmark[x][0] = createDate(chartDataBenchmark[x][0]) }
+
+  console.log(chartDataStrategy)
+  console.log(chartDataBenchmark)
+
+  $.plot($("#flot-chart1"), 
+		    [ {
+		    data:chartDataStrategy,
+		    label:'Strategy',
+		    lines:{show:true}},
+
+		    {data:chartDataBenchmark,
+		    label:'{{benchmark_name}}',
+		    lines:{show:true}}],
+
+		    {xaxis:{mode:'time'}});
+
+
+}); //////////////////end Doc.ready()
+
+
+</script>
+
+</html>
+{% endblock %}
