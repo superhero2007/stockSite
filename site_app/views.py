@@ -18,8 +18,8 @@ from .forms import SectorIndustryForm
 from django.http import HttpResponse
 from django.template import RequestContext, loader
 
-EnterLong = 0.6
-EnterShort = 0.4
+EnterLong = 0.58
+EnterShort = 0.42
 MySQL_Server = os.environ.get('MySQL_Server')
 
 def wavg(group, avg_name, weight_name):
